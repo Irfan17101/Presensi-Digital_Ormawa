@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+    />
+    <meta name="theme-color" content="#3B0EAC" />
+    <title>Presinize Organisasi Kemahasiswaan</title>
+
+    <!-- Framework7 -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/framework7/framework7-bundle.min.css"
+    />
+    <script src="https://unpkg.com/framework7/framework7-bundle.min.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        height: 100vh;
+        background: linear-gradient(135deg, #3b0eac, #5d2ee6);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        font-family: "Poppins", sans-serif;
+        color: white;
+        text-align: center;
+        overflow: hidden;
+      }
+
+      .logo {
+        width: 150px;
+        height: 150px;
+        background-color: white;
+        border-radius: 30px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        margin-bottom: 30px;
+        animation: fadeIn 1.2s ease-in-out;
+      }
+
+      .logo img {
+        width: 100px;
+        height: 100px;
+        object-fit: contain;
+      }
+
+      .title {
+        font-size: 3rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        margin-bottom: 10px;
+        animation: fadeIn 1.6s ease-in-out;
+      }
+
+      .subtitle {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        margin-bottom: 40px;
+        animation: fadeIn 2s ease-in-out;
+      }
+
+      .btn {
+        background-color: #ffffff;
+        color: #3b0eac;
+        font-weight: 600;
+        border-radius: 30px;
+        padding: 14px 40px;
+        border: none;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        animation: fadeIn 2.3s ease-in-out;
+      }
+
+      .btn:hover {
+        background-color: #ece3ff;
+        transform: scale(1.05);
+      }
+
+      .footer {
+        position: absolute;
+        bottom: 15px;
+        font-size: 0.85rem;
+        opacity: 0.8;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="logo">
+      <!-- Ganti dengan logo kamu -->
+      <img src="logo-presinize.png" alt="Presinize Logo" />
+    </div>
+
+    <div class="title">Presinize</div>
+    <div class="subtitle">Presensi Digital, Organisasi Kemahasiswaan.</div>
+    <button class="btn" onclick="window.location.href='login.html'">
+      Mulai Sekarang
+    </button>
+
+    <div class="footer">© 2025 Presinize - All Rights Reserved</div>
+  </body>
+</html>
