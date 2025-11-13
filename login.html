@@ -5,18 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Login - Presinize</title>
 
-    <link rel="stylesheet" href="https://unpkg.com/framework7/framework7-bundle.min.css" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/framework7/framework7-bundle.min.css"
+    />
     <script src="https://unpkg.com/framework7/framework7-bundle.min.js"></script>
 
     <!-- Apple Font -->
-    <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
 
     <style>
       * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
-        font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+          "Segoe UI", Roboto, sans-serif;
       }
 
       body {
@@ -174,7 +181,8 @@
       }
 
       @keyframes float {
-        0%, 100% {
+        0%,
+        100% {
           transform: translateY(0) scale(1);
         }
         50% {
@@ -201,13 +209,18 @@
           <input type="text" id="username" placeholder="Username" required />
         </div>
         <div class="input-group">
-          <input type="password" id="password" placeholder="Password" required />
+          <input
+            type="password"
+            id="password"
+            placeholder="Password"
+            required
+          />
         </div>
         <button class="btn" type="submit">Masuk</button>
       </form>
 
       <div class="links">
-        <a href="forgot-password.html">Lupa password?</a> | 
+        <a href="forgot-password.html">Lupa password?</a> |
         <a href="register.html">Daftar akun baru</a>
       </div>
     </div>
@@ -217,14 +230,14 @@
         event.preventDefault();
         const username = document.getElementById("username").value;
         const password = document.getElementById("password").value;
-        
+
         // Simulasi login sederhana
-        if(username && password) {
+        if (username && password) {
           alert(`Halo ${username}! Anda berhasil login ke Presinize`);
           // Redirect ke dashboard setelah login berhasil
           // window.location.href = 'dashboard.html';
         } else {
-          alert('Silakan isi username dan password');
+          alert("Silakan isi username dan password");
         }
       }
     </script>
