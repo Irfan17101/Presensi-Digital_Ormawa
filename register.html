@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Login - Presinize</title>
+    <title>Daftar - Presinize</title>
 
     <link rel="stylesheet" href="https://unpkg.com/framework7/framework7-bundle.min.css" />
     <script src="https://unpkg.com/framework7/framework7-bundle.min.js"></script>
@@ -32,11 +32,11 @@
 
       .container {
         width: 100%;
-        max-width: 380px;
+        max-width: 400px;
         background: rgba(255, 255, 255, 0.12);
         backdrop-filter: blur(20px);
         border-radius: 28px;
-        padding: 40px 30px;
+        padding: 35px 25px;
         box-shadow: 0 10px 35px rgba(0, 0, 0, 0.3);
         text-align: center;
         animation: slideUp 0.6s ease-out;
@@ -44,11 +44,11 @@
       }
 
       .logo {
-        width: 80px;
-        height: 80px;
+        width: 70px;
+        height: 70px;
         background: white;
-        border-radius: 18px;
-        margin: 0 auto 25px;
+        border-radius: 16px;
+        margin: 0 auto 20px;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -56,12 +56,12 @@
       }
 
       .logo img {
-        width: 50px;
+        width: 45px;
       }
 
       h2 {
         color: white;
-        font-size: 1.7rem;
+        font-size: 1.6rem;
         font-weight: 700;
         margin-bottom: 8px;
         letter-spacing: -0.5px;
@@ -69,29 +69,29 @@
 
       p {
         color: rgba(255, 255, 255, 0.8);
-        font-size: 0.95rem;
-        margin-bottom: 30px;
+        font-size: 0.9rem;
+        margin-bottom: 25px;
         font-weight: 400;
       }
 
       .input-group {
         position: relative;
-        margin-bottom: 20px;
+        margin-bottom: 15px;
       }
 
-      .input-group input {
+      .input-group input, .input-group select {
         width: 100%;
-        padding: 16px 18px;
+        padding: 14px 16px;
         border-radius: 12px;
         border: 1px solid rgba(255, 255, 255, 0.2);
         outline: none;
         background: rgba(255, 255, 255, 0.9);
-        font-size: 1rem;
+        font-size: 0.95rem;
         transition: all 0.3s ease;
         font-weight: 400;
       }
 
-      .input-group input:focus {
+      .input-group input:focus, .input-group select:focus {
         border-color: #3b0eac;
         box-shadow: 0 0 0 3px rgba(59, 14, 172, 0.2);
         background: white;
@@ -108,7 +108,7 @@
         font-size: 1.05rem;
         cursor: pointer;
         transition: all 0.3s ease;
-        margin-top: 10px;
+        margin-top: 15px;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
       }
 
@@ -122,8 +122,8 @@
       }
 
       .links {
-        margin-top: 25px;
-        font-size: 0.9rem;
+        margin-top: 20px;
+        font-size: 0.85rem;
       }
 
       .links a {
@@ -150,11 +150,10 @@
         }
       }
 
-      /* Floating background effect */
       .bg-shape {
         position: absolute;
-        width: 200px;
-        height: 200px;
+        width: 180px;
+        height: 180px;
         border-radius: 50%;
         background: rgba(255, 255, 255, 0.05);
         animation: float 6s ease-in-out infinite;
@@ -162,15 +161,15 @@
       }
 
       .bg-shape:nth-child(1) {
-        top: 10%;
-        left: 10%;
+        top: 8%;
+        left: 8%;
         animation-delay: 0s;
       }
 
       .bg-shape:nth-child(2) {
-        bottom: 15%;
-        right: 10%;
-        animation-delay: 3s;
+        bottom: 12%;
+        right: 8%;
+        animation-delay: 2s;
       }
 
       @keyframes float {
@@ -178,14 +177,13 @@
           transform: translateY(0) scale(1);
         }
         50% {
-          transform: translateY(-20px) scale(1.05);
+          transform: translateY(-15px) scale(1.03);
         }
       }
     </style>
   </head>
 
   <body>
-    <!-- background shapes -->
     <div class="bg-shape"></div>
     <div class="bg-shape"></div>
 
@@ -193,38 +191,63 @@
       <div class="logo">
         <img src="logo-presinize.png" alt="Presinize Logo" />
       </div>
-      <h2>Selamat Datang</h2>
-      <p>Masuk ke akun organisasi Anda</p>
+      <h2>Daftar Akun</h2>
+      <p>Bergabung dengan organisasi Anda</p>
 
-      <form onsubmit="return login(event)">
+      <form onsubmit="return register(event)">
         <div class="input-group">
-          <input type="text" id="username" placeholder="Username" required />
+          <input type="text" id="fullname" placeholder="Nama Lengkap" required />
+        </div>
+        <div class="input-group">
+          <input type="text" id="nim" placeholder="NIM" required />
+        </div>
+        <div class="input-group">
+          <input type="email" id="email" placeholder="Email" required />
+        </div>
+        <div class="input-group">
+          <select id="organization" required>
+            <option value="">Pilih Organisasi</option>
+            <option value="iron-ramacham">Iron Ramacham</option>
+            <option value="bem">BEM</option>
+            <option value="hmj">HMJ</option>
+          </select>
         </div>
         <div class="input-group">
           <input type="password" id="password" placeholder="Password" required />
         </div>
-        <button class="btn" type="submit">Masuk</button>
+        <div class="input-group">
+          <input type="password" id="confirmPassword" placeholder="Konfirmasi Password" required />
+        </div>
+        <button class="btn" type="submit">Daftar</button>
       </form>
 
       <div class="links">
-        <a href="forgot-password.html">Lupa password?</a> | 
-        <a href="register.html">Daftar akun baru</a>
+        <a href="login.html">← Kembali ke Login</a>
       </div>
     </div>
 
     <script>
-      function login(event) {
+      function register(event) {
         event.preventDefault();
-        const username = document.getElementById("username").value;
-        const password = document.getElementById("password").value;
         
-        // Simulasi login sederhana
-        if(username && password) {
-          alert(`Halo ${username}! Anda berhasil login ke Presinize`);
-          // Redirect ke dashboard setelah login berhasil
-          // window.location.href = 'dashboard.html';
+        const fullname = document.getElementById("fullname").value;
+        const nim = document.getElementById("nim").value;
+        const email = document.getElementById("email").value;
+        const organization = document.getElementById("organization").value;
+        const password = document.getElementById("password").value;
+        const confirmPassword = document.getElementById("confirmPassword").value;
+
+        // Validasi sederhana
+        if(password !== confirmPassword) {
+          alert('Password dan konfirmasi password tidak cocok');
+          return false;
+        }
+
+        if(fullname && nim && email && organization && password) {
+          alert(`Pendaftaran berhasil!\n\nNama: ${fullname}\nNIM: ${nim}\nOrganisasi: ${organization}\n\nSilakan login dengan akun Anda.`);
+          window.location.href = 'login.html';
         } else {
-          alert('Silakan isi username dan password');
+          alert('Silakan lengkapi semua data');
         }
       }
     </script>
