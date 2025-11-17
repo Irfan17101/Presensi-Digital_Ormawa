@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Presensi HMA</title>
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/framework7@8/framework7-bundle.min.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
+  <style>
+    /* =======================================================
+      == TEMA UTAMA (disamakan dengan HMSI) ==
+      =======================================================
+    */
+    :root {
+      --f7-theme-color: #4A47A3; /* Biru/Ungu Tua */
+      --f7-theme-color-rgb: 74, 71, 163;
+    }
+    
+    /* CSS Bawaan (Jangan diubah) */
+    :root {
+      --f7-page-bg-color: #f4f4f8;
+      --f7-card-bg-color: #ffffff;
+      --f7-text-color: #000000;
+      --f7-tabbar-link-inactive-color: #5f5f5f;
+      --f7-navbar-bg-color: #ffffff;
+      --f7-navbar-text-color: #000000;
+      --f7-navbar-link-color: var(--f7-theme-color);
+      --f7-navbar-title-font-weight: 600;
+    }
+    .event-card .card-header { font-weight: 600; font-size: 18px; color: var(--f7-theme-color); }
+    .event-card .card-footer { justify-content: flex-end; }
+    .event-card .list { margin: 0; }
+    .event-card .list li { border-bottom: 1px solid #f0f0f0; }
+    .event-card .list .item-title { font-size: 14px; color: #555; }
+    .event-card .list .item-after { font-size: 14px; font-weight: 500; }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <div class="view view-main view-init" data-url="/">
+      <div class="toolbar toolbar-bottom tabbar-icons">
+        <div class="toolbar-inner">
+          <a href="#tab-presensi" class="tab-link tab-link-active"><i class="icon material-icons">home</i><span class="tabbar-label">Beranda</span></a>
+          <a href="#tab-kegiatan-org" class="tab-link"><i class="icon material-icons">event_note</i><span class="tabbar-label">Kegiatan</span></a>
+        </div>
+      </div>
+      <div class="tabs">
+        <div id="tab-presensi" class="page tab-page-content tab tab-active">
+          <div class="navbar"><div class="navbar-bg"></div><div class="navbar-inner"><div class="title">Beranda HMA</div></div></div>
+          <div class="page-content">
+            <div class="card card-outline">
+              <div class="card-header"><div class="text-color-gray">Selamat Datang,</div><i class="icon material-icons text-color-theme" style="font-size: 30px;">account_circle</i></div>
+              <div class="card-content card-content-padding">
+                <h3 style="margin-top: 0; margin-bottom: 10px;">[Nama Anggota]</h3>
+                <p class="text-color-gray" style="margin-bottom: 0;">Organisasi:<br>
+                  <strong style="color: var(--f7-theme-color); font-size: 16px;">
+                    Himpunan Mahasiswa Akuntansi
+                  </strong>
+                </p>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header">Presensi Harian</div>
+              <div class="card-content card-content-padding">
+                <p class="text-color-gray">Tanggal Hari Ini: <span id="tanggal" class="font-medium text-color-theme"></span></p>
+                <button id="btnPresensi" class="button button-fill button-large button-round margin-top"><i class="icon material-icons" style="font-size: 20px; margin-right: 8px;">touch_app</i>Presensi Sekarang</button>
+                <p id="statusPresensi" class="margin-top text-color-gray text-align-center"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div id="tab-kegiatan-org" class="page tab-page-content tab">
+          <div class="navbar"><div class="navbar-bg"></div><div class="navbar-inner"><div class="title">Kegiatan HMA</div></div></div>
+          <div class="page-content">
+            <div class="card event-card">
+              <div class="card-header">Pelatihan Pajak (Brevet)</div>
+              <div class="card-content"><div class="list no-hairlines"><ul>
+                <li class="item-content"><div class="item-inner"><div class="item-title">Tanggal</div><div class="item-after">5 Des 2025</div></div></li>
+              </ul></div></div>
+              <div class="card-footer"><span class="badge color-yellow">Akan Datang</span></div>
+            </div>
+            
+            <div class="card event-card">
+              <div class="card-header">Lomba Cerdas Cermat Akuntansi</div>
+              <div class="card-content"><div class="list no-hairlines"><ul>
+                <li class="item-content"><div class="item-inner"><div class="item-title">Tanggal</div><div class="item-after">10 Nov 2025</div></div></li>
+              </ul></div></div>
+              <div class="card-footer"><span class="badge color-gray">Selesai</span></div>
+            </div>
+            
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/framework7@8/framework7-bundle.min.js"></script>
+  <script>
+    var app = new Framework7({ el: '#app', name: 'Presensi HMA', id: 'com.presensi.hma', material: true, routes: [{ path: '/', tab: { id: 'tab-presensi' } }] });
+    var $$ = Dom7;
+    $$('#tanggal').text(new Date().toLocaleDateString("id-ID", { weekday: "long", year: "numeric", month: "long", day: "numeric" }));
+    $$('#btnPresensi').on('click', function () {
+      $$(this).prop('disabled', true).addClass('disabled');
+      $$('#statusPresensi').html('<i class="icon material-icons" style="font-size: 18px; vertical-align: middle;">check_circle</i> Presensi berhasil!').addClass('text-color-green');
+    });
+  </script>
+</body>
+</html>

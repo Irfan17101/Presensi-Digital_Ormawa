@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>HMIF Smart Attendance</title>
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/framework7@8/framework7-bundle.min.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
+  <style>
+    /* === TEMA HMIF SESUAI PPT === */
+    :root {
+      --f7-theme-color: #4A47A3; /* Biru/Ungu Tua */
+      --f7-theme-color-rgb: 74, 71, 163;
+      
+      --f7-page-bg-color: #f8f9fa;
+      --f7-navbar-bg-color: #ffffff;
+      --f7-navbar-text-color: #000000;
+      --f7-navbar-link-color: var(--f7-theme-color);
+    }
+
+    /* Custom Styles */
+    .event-info-card {
+      border-left: 5px solid var(--f7-theme-color);
+      border-radius: 8px;
+    }
+    
+    .activity-card {
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      margin-bottom: 16px;
+    }
+    
+    .activity-date {
+      background: var(--f7-theme-color);
+      color: white;
+      border-radius: 8px;
+      text-align: center;
+      padding: 8px;
+      width: 50px;
+    }
+    
+    /* Profile Header Style */
+    .profile-header {
+      background: #ffffff;
+      padding: 30px 20px;
+      text-align: center;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #eee;
+    }
+    .profile-img {
+      width: 100px; height: 100px;
+      border-radius: 50%;
+      background: #e0e0e0;
+      margin: 0 auto 15px;
+      display: flex; align-items: center; justify-content: center;
+      border: 3px solid var(--f7-theme-color);
+    }
+
+    /* Scanner Simulation CSS */
+    .scan-area {
+      width: 250px; height: 250px;
+      border: 2px solid #00ff00;
+      margin: 50% auto 0; transform: translateY(-50%);
+      position: relative;
+      box-shadow: 0 0 0 100vmax rgba(0,0,0,0.7);
+    }
+    .scan-line {
+      width: 100%; height: 2px; background: #00ff00;
+      position: absolute; animation: scan 2s infinite;
+    }
+    @keyframes scan { 0% {top:0} 50% {top:100%} 100% {top:0} }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <div class="view view-main view-init" data-url="/">
+      
+      <div class="toolbar toolbar-bottom tabbar-icons">
+        <div class="toolbar-inner">
+          <a href="#tab-absen" class="tab-link tab-link-active">
+            <i class="icon material-icons">qr_code_scanner</i>
+            <span class="tabbar-label">Absensi</span>
+          </a>
+          <a href="#tab-kegiatan" class="tab-link">
+            <i class="icon material-icons">event_note</i>
+            <span class="tabbar-label">Kegiatan</span>
+          </a>
+          <a href="#tab-riwayat" class="tab-link">
+            <i class="icon material-icons">history</i>
+            <span class="tabbar-label">Riwayat</span>
+          </a>
+          <a href="#tab-profil" class="tab-link">
+            <i class="icon material-icons">person</i>
+            <span class="tabbar-label">Profil</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="tabs">
+
+        <div id="tab-absen" class="page tab-page-content tab tab-active">
+          <div class="navbar">
+            <div class="navbar-bg"></div>
+            <div class="navbar-inner">
+              <div class="title">Absensi HMIF</div>
+              <div class="right">
+                <a href="#" class="link icon-only popup-open" data-popup=".popup-notifikasi">
+                  <i class="icon material-icons">notifications</i>
+                </a>
+              </div>
+            </div>
+          </div>
+          
+          <div class="page-content">
+            
+            <div class="block-title" style="margin-top: 20px;">Sedang Berlangsung</div>
+            <div class="card event-info-card shadow-lg">
+              <div class="card-content card-content-padding">
+                <div class="display-flex justify-content-between align-items-start">
+                   <h2 style="margin: 0; color: var(--f7-theme-color);">Workshop Tech 4.0</h2>
+                </div>
+                <div class="list media-list no-hairlines" style="margin: 0;">
+                  <ul>
+                    <li>
+                      <div class="item-content" style="padding-left: 0;">
+                        <div class="item-media"><i class="icon material-icons text-color-gray">event</i></div>
+                        <div class="item-inner">
+                          <div class="item-title">Hari Ini, 17 Nov 2025</div>
+                          <div class="item-subtitle">08:00 - 12:00 WIB</div>
+                        </div>
+                      </div>
+                    </li>
+                    <li>
+                      <div class="item-content" style="padding-left: 0;">
+                        <div class="item-media"><i class="icon material-icons text-color-gray">place</i></div>
+                        <div class="item-inner">
+                          <div class="item-title">Aula Utama Kampus</div>
+                          <div class="item-subtitle">Radius Max: 50 Meter</div>
+                        </div>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="block-title">Lakukan Absensi</div>
+            <div class="row margin-horizontal gap-2">
+              <div class="col-100 margin-bottom">
+                <button class="button button-large button-fill popup-open" data-popup=".popup-qr" style="background: #000; height: 60px;">
+                  <i class="icon material-icons margin-right">qr_code_2</i> Pindai QR Code
+                </button>
+              </div>
+              <div class="col-100 margin-bottom">
+                <button class="button button-large button-fill" onclick="cekGPS()" style="background: var(--f7-theme-color); height: 60px;">
+                  <i class="icon material-icons margin-right">my_location</i> Absensi GPS
+                </button>
+              </div>
+              <div class="col-100 margin-bottom">
+                <button class="button button-large button-fill popup-open" data-popup=".popup-selfie" style="background: #e91e63; height: 60px;">
+                  <i class="icon material-icons margin-right">camera_front</i> Verifikasi Selfie
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="tab-kegiatan" class="page tab-page-content tab">
+          <div class="navbar"><div class="navbar-bg"></div><div class="navbar-inner"><div class="title">Jadwal Kegiatan</div></div></div>
+          <div class="page-content">
+            <form class="searchbar">
+              <div class="searchbar-inner">
+                <div class="searchbar-input-wrap">
+                  <input type="search" placeholder="Cari kegiatan..." />
+                  <i class="searchbar-icon"></i>
+                  <span class="input-clear-button"></span>
+                </div>
+                <span class="searchbar-disable-button">Batal</span>
+              </div>
+            </form>
+
+            <div class="block-title">Bulan Ini</div>
+            
+            <div class="card activity-card">
+              <div class="card-content">
+                <div class="list media-list no-hairlines">
+                  <ul>
+                    <li>
+                      <a href="#" class="item-link item-content">
+                        <div class="item-media">
+                          <div class="activity-date"><span style="font-size: 12px; display: block;">NOV</span><span style="font-size: 18px; font-weight: bold;">25</span></div>
+                        </div>
+                        <div class="item-inner">
+                          <div class="item-title-row"><div class="item-title font-bold">Competitive Programming</div><div class="item-after"><span class="badge color-yellow text-color-black">Akan Datang</span></div></div>
+                          <div class="item-subtitle text-color-gray">Lab Komputer 3 • 09:00 WIB</div>
+                        </div>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          
+            <div class="card activity-card">
+              <div class="card-content">
+                <div class="list media-list no-hairlines">
+                  <ul>
+                    <li>
+                      <a href="#" class="item-link item-content">
+                        <div class="item-media">
+                          <div class="activity-date"><span style="font-size: 12px; display: block;">NOV</span><span style="font-size: 18px; font-weight: bold;">17</span></div>
+                        </div>
+                        <div class="item-inner">
+                          <div class="item-title-row"><div class="item-title font-bold">Workshop Tech 4.0</div><div class="item-after"><span class="badge color-green">Berlangsung</span></div></div>
+                          <div class="item-subtitle text-color-gray">Aula Utama • 08:00 WIB</div>
+                        </div>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="tab-riwayat" class="page tab-page-content tab">
+          <div class="navbar"><div class="navbar-bg"></div><div class="navbar-inner"><div class="title">Riwayat Kehadiran</div></div></div>
+          <div class="page-content">
+            
+            <div class="block margin-top">
+              <div class="card card-outline text-align-center">
+                <div class="card-content card-content-padding">
+                   <div class="display-flex justify-content-between align-items-center margin-bottom">
+                      <span>Persentase Kehadiran</span>
+                      <span class="font-bold text-color-green">85%</span>
+                   </div>
+                   <div class="progressbar color-green" data-progress="85" style="height: 8px; border-radius: 4px;">
+                     <span style="transform: translate3d(-15%, 0px, 0px);"></span>
+                   </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="block-title">Log Aktivitas</div>
+            <div class="list media-list inset">
+              <ul>
+                <li>
+                  <div class="item-content">
+                    <div class="item-inner">
+                      <div class="item-title-row">
+                        <div class="item-title">Workshop Tech 4.0</div>
+                        <div class="item-after"><span class="badge color-green">Hadir</span></div>
+                      </div>
+                      <div class="item-subtitle">17 Nov • via QR Code</div>
+                    </div>
+                  </div>
+                </li>
+                <li>
+                  <div class="item-content">
+                    <div class="item-inner">
+                      <div class="item-title-row">
+                        <div class="item-title">Rapat Bulanan</div>
+                        <div class="item-after"><span class="badge color-red">Alpha</span></div>
+                      </div>
+                      <div class="item-subtitle">10 Nov • Tidak Absen</div>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div id="tab-profil" class="page tab-page-content tab">
+          <div class="navbar"><div class="navbar-bg"></div><div class="navbar-inner"><div class="title">Profil Saya</div></div></div>
+          <div class="page-content">
+            
+            <div class="profile-header">
+              <div class="profile-img">
+                <i class="icon material-icons" style="font-size: 60px; color: #666;">person</i>
+              </div>
+              <h2 style="margin: 0; font-size: 22px;">Irfan Ramadhani</h2>
+              <p class="text-color-gray" style="margin: 5px 0;">NIM: 10122099</p>
+              <div class="chip color-blue margin-top-half">
+                <div class="chip-label">Anggota Aktif</div>
+              </div>
+            </div>
+
+            <div class="list inset margin-top">
+              <ul>
+                <li>
+                  <a href="#" class="item-link item-content">
+                    <div class="item-media"><i class="icon material-icons color-blue">account_box</i></div>
+                    <div class="item-inner">
+                      <div class="item-title">Edit Profil</div>
+                    </div>
+                  </a>
+                </li>
+                <li>
+                  <a href="#" class="item-link item-content">
+                    <div class="item-media"><i class="icon material-icons color-orange">lock</i></div>
+                    <div class="item-inner">
+                      <div class="item-title">Ganti Kata Sandi</div>
+                    </div>
+                  </a>
+                </li>
+                <li>
+                  <a href="#" class="item-link item-content">
+                    <div class="item-media"><i class="icon material-icons color-gray">help</i></div>
+                    <div class="item-inner">
+                      <div class="item-title">Bantuan & Laporan</div>
+                    </div>
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            <div class="block margin-top">
+              <button class="button button-large button-outline color-red">Logout</button>
+              <p class="text-align-center text-color-gray size-12 margin-top">Versi Aplikasi 1.0.0</p>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="popup popup-notifikasi">
+    <div class="view">
+      <div class="page">
+        <div class="navbar">
+          <div class="navbar-bg"></div>
+          <div class="navbar-inner">
+            <div class="title">Notifikasi</div>
+            <div class="right">
+              <a class="link popup-close" href="#">Tutup</a>
+            </div>
+          </div>
+        </div>
+        <div class="page-content">
+          <div class="list media-list">
+            <ul>
+              <li>
+                <a href="#" class="item-link item-content">
+                  <div class="item-media"><i class="icon material-icons text-color-blue">info</i></div>
+                  <div class="item-inner">
+                    <div class="item-title-row">
+                      <div class="item-title">Jadwal Berubah</div>
+                      <div class="item-after">1j</div>
+                    </div>
+                    <div class="item-text">Lokasi Workshop dipindah ke Aula Utama.</div>
+                  </div>
+                </a>
+              </li>
+              <li>
+                <a href="#" class="item-link item-content">
+                  <div class="item-media"><i class="icon material-icons text-color-green">check_circle</i></div>
+                  <div class="item-inner">
+                    <div class="item-title-row">
+                      <div class="item-title">Absensi Berhasil</div>
+                      <div class="item-after">2j</div>
+                    </div>
+                    <div class="item-text">Kehadiran Anda di 'Workshop Tech' telah tercatat.</div>
+                  </div>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="popup popup-qr">
+    <div class="view">
+      <div class="page bg-color-black">
+        <div class="navbar navbar-transparent">
+          <div class="navbar-inner"><div class="right"><a class="link popup-close text-color-white" href="#">Tutup</a></div></div>
+        </div>
+        <div class="page-content display-flex flex-direction-column justify-content-center align-items-center">
+          <div class="scan-area"><div class="scan-line"></div></div>
+          <p class="text-color-white margin-top text-align-center">Arahkan kamera ke QR Code</p>
+          <button class="button button-fill color-green margin-top" onclick="simulasiSukses('QR')">Simulasi Scan</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="popup popup-selfie">
+    <div class="view">
+      <div class="page bg-color-black">
+        <div class="navbar navbar-transparent">
+          <div class="navbar-inner"><div class="title text-color-white">Ambil Selfie</div><div class="right"><a class="link popup-close text-color-white" href="#">Batal</a></div></div>
+        </div>
+        <div class="page-content display-flex flex-direction-column">
+          <div style="flex:1; background:#333; display:flex; align-items:center; justify-content:center;"><i class="icon material-icons text-color-gray" style="font-size:64px;">face</i></div>
+          <div style="height:100px; background:#000; display:flex; align-items:center; justify-content:center;">
+             <a href="#" onclick="simulasiSukses('Selfie')" style="width:70px; height:70px; background:#fff; border-radius:50%; border:4px solid #ccc;"></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/framework7@8/framework7-bundle.min.js"></script>
+  <script>
+    var app = new Framework7({ el: '#app', name: 'HMIF Absen', id: 'com.hmif.absen', material: true });
+
+    function cekGPS() {
+      app.dialog.preloader('Mendeteksi Lokasi...');
+      setTimeout(function() {
+        app.dialog.close();
+        var dalamRadius = Math.random() > 0.3; 
+        if (dalamRadius) {
+          app.dialog.alert('Lokasi Terverifikasi: Dalam Radius ✅', 'Berhasil', function(){ notifikasiStatus('Berhasil', 'Absensi GPS tercatat.'); });
+        } else {
+          app.dialog.alert('Gagal! Posisi Anda di luar radius kegiatan.', 'Peringatan ⚠️');
+        }
+      }, 1500);
+    }
+
+    function simulasiSukses(tipe) {
+      app.popup.close(); 
+      app.dialog.preloader('Memproses Data...');
+      setTimeout(function() {
+        app.dialog.close();
+        notifikasiStatus('Berhasil', 'Absensi ' + tipe + ' telah diverifikasi.');
+      }, 1000);
+    }
+
+    function notifikasiStatus(judul, pesan) {
+      app.toast.create({ text: judul + ': ' + pesan, position: 'bottom', closeTimeout: 3000, cssClass: 'bg-color-green' }).open();
+    }
+  </script>
+</body>
+</html>
