@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rekap Izin</title>
+
+<style>
+:root {
+    --primary: #6A0DAD;
+    --secondary: #A67B5B;
+    --darkbrown: #5A3E2B;
+    --bg: #F7F4F2;
+}
+
+body { margin:0; background:var(--bg); font-family:Arial; }
+.app { max-width:480px; margin:auto; padding:16px; }
+
+h2 { color:var(--darkbrown); }
+
+.card {
+    background:white; padding:18px; border-radius:14px;
+    border-left:6px solid var(--secondary);
+    box-shadow:0 8px 20px rgba(0,0,0,0.07);
+}
+
+table { width:100%; border-collapse:collapse; }
+
+th {
+    background:var(--primary); color:white; padding:10px; font-size:14px;
+}
+
+td {
+    padding:10px; border-bottom:1px solid #e6dcd0;
+    font-size:14px; color:var(--darkbrown);
+}
+
+.back { color:var(--primary); text-decoration:none; font-weight:bold; }
+</style>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script src="firebase-config.js"></script>
+
+</head>
+<body>
+
+<div class="app">
+    <h2>Rekap Izin / Ketidakhadiran</h2>
+
+    <div class="card">
+        <table>
+            <thead>
+                <tr>
+                    <th>Nama</th>
+                    <th>Keterangan</th>
+                    <th>Alasan</th>
+                    <th>Waktu</th>
+                </tr>
+            </thead>
+            <tbody id="data"></tbody>
+        </table>
+    </div>
+
+    <a class="back" href="izin.html">← Kembali</a>
+</div>
+
+<script>
+function load(){
+    let body = document.getElementById("data");
+    body.innerHTML = "<tr><td colspan='4'>Memuat...</td></tr>";
+
+    db.ref("izin").orderByChild("iso").on("value", snap => {
+        let data = snap.val();
+        body.innerHTML="";
+
+        if(!data){
+            body.innerHTML="<tr><td colspan='4'>Belum ada data</td></tr>";
+            return;
+        }
+
+        let arr = Object.values(data).sort((a,b)=> new Date(b.iso)-new Date(a.iso));
+
+        arr.forEach(d=>{
+            body.innerHTML += `
+            <tr>
+                <td>${d.nama}</td>
+                <td>${d.keterangan}</td>
+                <td>${d.alasan}</td>
+                <td>${d.waktu}</td>
+            </tr>`;
+        });
+    });
+}
+load();
+</script>
+
+</body>
+</html>
