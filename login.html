@@ -2,13 +2,18 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
     <title>Login - Presinize</title>
 
-    <link rel="stylesheet" href="https://unpkg.com/framework7/framework7-bundle.min.css" />
-    <script src="https://unpkg.com/framework7/framework7-bundle.min.js"></script>
+    <link rel="stylesheet" href="lib/framework7-bundle.min.css" />
+    <script src="lib/framework7-bundle.min.js"></script>  
+
     <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
     <style>
       * {
         margin: 0;
@@ -17,15 +22,30 @@
         font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
       }
 
-      body {
+      html, body {
+        height: 100%;
         margin: 0;
-        height: 100vh;
+        padding: 0;
+      }
+
+      body {
+        min-height: 100vh;
         background: linear-gradient(135deg, #3b0eac, #5d2ee6);
+        display: flex;
+        flex-direction: column;
+        overflow-x: hidden;
+        padding: 20px;
+      }
+
+      .scroll-container {
+        flex: 1;
         display: flex;
         justify-content: center;
         align-items: center;
-        overflow: hidden;
-        padding: 20px;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        min-height: 0;
+        padding: 20px 0;
       }
 
       .container {
@@ -187,92 +207,165 @@
           transform: translateY(-20px) scale(1.05);
         }
       }
+
+      /* Hide scrollbar but keep functionality */
+      .scroll-container::-webkit-scrollbar {
+        display: none;
+      }
+
+      /* Safe area for notch phones */
+      @supports (padding: max(0px)) {
+        body {
+          padding-left: env(safe-area-inset-left);
+          padding-right: env(safe-area-inset-right);
+          padding-bottom: env(safe-area-inset-bottom);
+        }
+      }
+
+      /* Optimasi untuk mobile */
+      @media (max-width: 480px) {
+        body {
+          padding: 16px;
+        }
+        
+        .scroll-container {
+          padding: 10px 0;
+        }
+        
+        .container {
+          padding: 30px 20px;
+          border-radius: 20px;
+        }
+        
+        .input-group input, .input-group select {
+          padding: 14px 16px;
+        }
+      }
     </style>
   </head>
 
   <body>
-    <!-- background shapes -->
     <div class="bg-shape"></div>
     <div class="bg-shape"></div>
 
-    <div class="container">
-      <div class="logo">
-        <img src="logo-presinize.png" alt="Presinize Logo" />
-      </div>
-      <h2>Selamat Datang di Presinize</h2>
-      <p>Masuk ke akun organisasi Anda</p>
+    <div class="scroll-container">
+      <div class="container">
+        <div class="logo">
+          <img src="logo-presinize.png" alt="Presinize Logo" />
+        </div>
+        <h2>Selamat Datang di Presinize</h2>
+        <p>Masuk ke akun organisasi Anda</p>
 
-      <form onsubmit="return login(event)">
-        <div class="input-group">
-          <label class="input-label">Username</label>
-          <input type="text" id="username" placeholder="Masukkan username" required />
-        </div>
-        <div class="input-group">
-          <label class="input-label">Password</label>
-          <input type="password" id="password" placeholder="Masukkan password" required />
-        </div>
-        <div class="input-group">
-          <label class="input-label">Role</label>
-          <select id="role" required>
-            <option value="">Pilih Role</option>
-            <option value="user">Anggota</option>
-            <option value="admin">Admin</option>
-          </select>
-        </div>
-        <button class="btn" type="submit">Masuk</button>
-      </form>
+        <form onsubmit="return login(event)">
+          <div class="input-group">
+            <label class="input-label">Username atau Email</label>
+            <input type="text" id="username" placeholder="Masukkan username atau email" required />
+          </div>
+          <div class="input-group">
+            <label class="input-label">Password</label>
+            <input type="password" id="password" placeholder="Masukkan password" required />
+          </div>
+          <div class="input-group">
+            <label class="input-label">Role</label>
+            <select id="role" required>
+              <option value="">Pilih Role</option>
+              <option value="user">Anggota</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          <button class="btn" type="submit">Masuk</button>
+        </form>
 
-      <div class="links">
-        <a href="forgot-password.html">Lupa password?</a> |
-        <a href="register.html">Daftar akun baru</a>
+        <div class="links">
+          <a href="forgot-password.html">Lupa password?</a> |
+          <a href="register.html">Daftar akun baru</a>
+        </div>
       </div>
     </div>
 
-    <!-- Load users data -->
-    <script src="users-data.js"></script>
-
     <script>
-    function login(event) {
+    async function login(event) {
         event.preventDefault();
         
-        const usernameOrEmail = document.getElementById("username").value;
+        const email = document.getElementById("username").value;
         const password = document.getElementById("password").value;
         const role = document.getElementById("role").value;
 
         // Validasi input
-        if(!usernameOrEmail || !password || !role) {
+        if(!email || !password || !role) {
             alert('Semua field harus diisi!');
             return false;
         }
 
-        // Cari user di database - BISA DENGAN USERNAME ATAU EMAIL
-        const users = getUsers();
-        const user = users.find(u => 
-            (u.username === usernameOrEmail || u.email === usernameOrEmail) && 
-            u.password === password && 
-            u.role === role
-        );
+        // Tampilkan loading
+        const btn = event.target.querySelector('.btn');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = 'Masuk...';
+        btn.disabled = true;
 
-        if(user) {
-            // Simpan user yang login ke localStorage
-            localStorage.setItem('currentUser', JSON.stringify(user));
+        try {
+            // 1. Login dengan Firebase Auth
+            const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
+            const user = userCredential.user;
             
-            // Tampilkan loading
-            const btn = event.target.querySelector('.btn');
-            btn.innerHTML = 'Masuk...';
-            btn.disabled = true;
+            // 2. Ambil data user dari Realtime Database
+            const userRef = firebase.database().ref('users/' + user.uid);
+            const snapshot = await userRef.once('value');
+            const userData = snapshot.val();
+            
+            // **PERBAIKAN KRITIS UNTUK MENCEGAH KEGAGALAN DIAM**
+            if (!userData) {
+                throw new Error('Data user tidak ditemukan di database. Pastikan akun ini sudah mendaftar dan Rules Database Anda sudah diatur.');
+            }
 
-            // Redirect berdasarkan role
-            setTimeout(() => {
-                if(user.role === 'admin') {
-                    window.location.href = 'dashboard-admin.html';
-                } else {
-                    window.location.href = 'dashboard-anggota.html';
-                }
-            }, 1000);
+            // 3. Check role match
+            if (userData.role !== role) {
+                // Memberi tahu user role yang benar terdaftar di database
+                throw new Error('Role tidak sesuai. Akun ini terdaftar sebagai: ' + userData.role); 
+            }
+
+            // 4. Simpan data user ke localStorage (Menggunakan field 'nama' dan 'organisasi' dari database)
+            localStorage.setItem('currentUser', JSON.stringify({
+                uid: user.uid,
+                email: user.email,
+                role: userData.role,
+                name: userData.nama || '',         
+                organization: userData.organisasi || '',
+                nim: userData.nim || ''
+            }));
+
+            // 5. Redirect berdasarkan role
+            if(role === 'admin') {
+                window.location.href = 'dashboard-admin.html';
+            } else {
+                window.location.href = 'dashboard-anggota.html';
+            }
             
-        } else {
-            alert('Username/email, password, atau role salah!');
+        } catch (error) {
+            console.error('Login error:', error);
+            
+            // Tampilkan error message yang user-friendly
+            let errorMessage = 'Login gagal: ';
+            switch (error.code) {
+                case 'auth/user-not-found':
+                    errorMessage = 'Email tidak terdaftar';
+                    break;
+                case 'auth/wrong-password':
+                    errorMessage = 'Password salah';
+                    break;
+                case 'auth/invalid-email':
+                    errorMessage = 'Format email tidak valid';
+                    break;
+                default:
+                    // Menggunakan pesan dari throw error kustom
+                    errorMessage = error.message; 
+            }
+            
+            alert(errorMessage);
+            
+            // Reset button
+            btn.innerHTML = originalText;
+            btn.disabled = false;
         }
         
         return false;
