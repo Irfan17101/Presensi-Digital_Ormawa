@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Presensi Anggota</title>
+
+<style>
+:root {
+    --primary: #6A0DAD;
+    --secondary: #A67B5B;
+    --darkbrown: #5A3E2B;
+    --red: #E63946;
+    --bg: #F7F4F2;
+}
+
+body {
+    margin: 0;
+    background: var(--bg);
+    font-family: Arial;
+}
+
+.app { max-width: 480px; margin: auto; padding: 16px; }
+
+h2 { color: var(--darkbrown); }
+
+.card {
+    background: white;
+    padding: 18px;
+    border-radius: 14px;
+    border-left: 6px solid var(--secondary);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.07);
+    margin-bottom: 18px;
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    margin-top: 6px;
+    margin-bottom: 14px;
+    border-radius: 10px;
+    border: 1px solid #d4c7b9;
+}
+
+.btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 10px;
+    border: none;
+    font-weight: bold;
+    color: white;
+    background: var(--primary);
+    cursor: pointer;
+}
+
+.btn.red { background: var(--red); }
+
+.row { display: flex; gap: 10px; }
+
+.back {
+    display: inline-block;
+    margin-top: 10px;
+    color: var(--primary);
+    font-weight: bold;
+    text-decoration: none;
+}
+</style>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script src="firebase-config.js"></script>
+
+</head>
+<body>
+
+<div class="app">
+    <h2>Presensi Anggota</h2>
+
+    <div class="card">
+        <label>Nama Anggota:</label>
+        <input id="nama" placeholder="Masukkan nama...">
+
+        <div class="row">
+            <button class="btn" onclick="kirim('Hadir')">HADIR</button>
+            <button class="btn red" onclick="kirim('Tidak Hadir')">TIDAK HADIR</button>
+        </div>
+    </div>
+
+    <a class="back" href="rekap-kehadiran.html">→ Lihat Rekap Kehadiran</a><br>
+    <a class="back" href="izin.html">→ Ajukan Izin</a>
+</div>
+
+<script>
+function kirim(status){
+    let nama = document.getElementById("nama").value.trim();
+    if(!nama) return alert("Nama wajib diisi!");
+
+    let key = db.ref("presensi").push().key;
+
+    db.ref("presensi/"+key).set({
+        nama: nama,
+        status: status,
+        waktu: new Date().toLocaleString(),
+        iso: new Date().toISOString()
+    });
+
+    alert("Presensi berhasil!");
+    document.getElementById("nama").value = "";
+}
+</script>
+
+</body>
+</html>
