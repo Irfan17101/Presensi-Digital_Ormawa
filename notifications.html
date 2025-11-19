@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>BEM IDE LPKIA — Reminder & Meeting Report</title>
+
+    <!-- Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+      /* === Brand colors (BEM IDE LPKIA) === */
+      :root {
+        --primary: #2b2890; /* navy */
+        --primary-600: #1e1a78;
+        --accent: #574dff; /* purple accent */
+        --bg: #f4f5ff;
+        --card: #ffffff;
+        --muted: #6b6b6b;
+        --success: #059669;
+      }
+
+      /* === Reset & layout === */
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: Inter, "Helvetica Neue", Arial, sans-serif;
+        background: linear-gradient(180deg, #f6f7ff 0%, var(--bg) 100%);
+        color: #111827;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        padding: 28px;
+      }
+      .wrap {
+        max-width: 1100px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1fr 420px;
+        gap: 20px;
+        align-items: start;
+      }
+
+      /* === Left column: form === */
+      .card {
+        background: var(--card);
+        border-radius: 14px;
+        padding: 18px;
+        box-shadow: 0 8px 30px rgba(15, 23, 42, 0.06);
+        border: 1px solid rgba(43, 40, 144, 0.06);
+      }
+      h1 {
+        margin: 0 0 8px;
+        font-size: 20px;
+        color: var(--primary-600);
+      }
+      p.lead {
+        margin: 0 0 16px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      label {
+        display: block;
+        font-size: 13px;
+        color: #0b1220;
+        margin-bottom: 6px;
+        font-weight: 600;
+      }
+      input[type="text"],
+      input[type="datetime-local"],
+      select,
+      textarea {
+        width: 100%;
+        padding: 10px 12px;
+        border-radius: 10px;
+        border: 1px solid #e6e9fb;
+        background: #fff;
+        font-size: 14px;
+        color: #0b1220;
+        outline: none;
+        transition: box-shadow 0.12s, border-color 0.12s;
+      }
+      textarea {
+        min-height: 90px;
+        resize: vertical;
+      }
+      input:focus,
+      select:focus,
+      textarea:focus {
+        box-shadow: 0 6px 20px rgba(43, 40, 144, 0.06);
+        border-color: var(--accent);
+      }
+
+      .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+      .actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 12px;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 11px 14px;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+        font-weight: 700;
+        color: white;
+        font-size: 14px;
+      }
+      .btn-primary {
+        background: var(--primary-600);
+      }
+      .btn-ghost {
+        background: transparent;
+        color: var(--primary-600);
+        border: 1px solid rgba(43, 40, 144, 0.08);
+      }
+      .btn-export {
+        background: var(--accent);
+      }
+
+      /* === Right column: preview & list === */
+      .side {
+        position: sticky;
+        top: 28px;
+      }
+      .small {
+        font-size: 13px;
+        color: var(--muted);
+        margin-bottom: 8px;
+      }
+      .list-title {
+        font-weight: 700;
+        color: var(--primary-600);
+        margin-bottom: 8px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+      }
+      th,
+      td {
+        padding: 10px 8px;
+        border-bottom: 1px solid #eef2ff;
+        text-align: left;
+      }
+      th {
+        background: #fbfbff;
+        color: var(--primary-600);
+        font-weight: 700;
+      }
+
+      .meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 10px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .chip {
+        background: #f3f4ff;
+        padding: 6px 10px;
+        border-radius: 999px;
+        border: 1px solid rgba(43, 40, 144, 0.04);
+        font-weight: 600;
+        color: var(--primary-600);
+      }
+
+      /* responsive */
+      @media (max-width: 980px) {
+        .wrap {
+          grid-template-columns: 1fr;
+          padding: 0 8px;
+        }
+        .side {
+          position: relative;
+          top: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <!-- LEFT: FORM -->
+      <div class="card">
+        <h1>Notifikasi & Rapat</h1>
+        <p class="lead">
+          Isi form untuk membuat reminder & laporan rapat. Semua data tersimpan
+          di browser (localStorage) dan dapat diekspor ke Excel / PDF /
+          WhatsApp.
+        </p>
+
+        <div style="display: grid; gap: 12px">
+          <!-- basic notif -->
+          <div>
+            <label>Judul Notifikasi</label>
+            <input
+              id="notif-title"
+              type="text"
+              placeholder="Contoh: Rapat Koordinasi"
+            />
+          </div>
+
+          <div>
+            <label>Pesan singkat</label>
+            <input
+              id="notif-message"
+              type="text"
+              placeholder="Contoh: Rapat dimulai 15 menit lagi"
+            />
+          </div>
+
+          <div class="grid-2">
+            <div>
+              <label>Waktu Notifikasi</label>
+              <input id="notif-time" type="datetime-local" />
+            </div>
+            <div>
+              <label>Prioritas</label>
+              <select id="notif-priority">
+                <option value="Biasa">Biasa</option>
+                <option value="Penting">Penting</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label>Lokasi (Notifikasi)</label>
+            <input
+              id="notif-location"
+              type="text"
+              placeholder="Contoh: Sekre BEM"
+            />
+          </div>
+
+          <hr
+            style="
+              border: none;
+              border-top: 1px dashed #eef2ff;
+              margin: 6px 0 6px;
+            "
+          />
+
+          <!-- meeting-specific -->
+          <div style="display: grid; gap: 10px">
+            <div>
+              <label>Nama Pengirim</label>
+              <select id="sender-name">
+                <option>Ketua</option>
+                <option>Sekretaris</option>
+                <option>Bendahara</option>
+                <option>Lainnya</option>
+              </select>
+            </div>
+
+            <div>
+              <label>Nama ORMAWA</label>
+              <input
+                id="ormawa-name"
+                type="text"
+                placeholder="Contoh: BEM IDE LPKIA"
+              />
+            </div>
+
+            <div>
+              <label>Deskripsi / Pembahasan</label>
+              <textarea
+                id="meeting-desc"
+                placeholder="Contoh: Evaluasi proker, pengesahan anggaran, dsb"
+              ></textarea>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="btn btn-primary" onclick="setReminder()">
+              Set Reminder
+            </button>
+            <button class="btn btn-ghost" onclick="clearForm()">Reset</button>
+          </div>
+
+          <div style="display: flex; gap: 8px; margin-top: 10px">
+            <button
+              class="btn btn-export"
+              onclick="exportExcel()"
+              title="Export semua data ke Excel"
+            >
+              Export Excel
+            </button>
+            <button
+              class="btn btn-export"
+              style="background: var(--primary-600)"
+              onclick="exportAllPDF()"
+              title="Laporan rapat PDF"
+            >
+              Generate Meeting PDF
+            </button>
+            <button
+              class="btn btn-ghost"
+              onclick="exportWA()"
+              style="border: 1px solid rgba(0, 0, 0, 0.06)"
+            >
+              Kirim ke WhatsApp
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Preview & list -->
+      <aside class="side">
+        <div class="card">
+          <div class="list-title">Preview Reminder Terbaru</div>
+          <div id="preview-empty" class="small">Belum ada reminder.</div>
+
+          <div id="preview" style="display: none">
+            <div><strong id="pv-title"></strong></div>
+            <div class="meta">
+              <div class="chip" id="pv-priority">Prioritas</div>
+              <div class="chip" id="pv-time">Waktu</div>
+              <div class="chip" id="pv-loc">Lokasi</div>
+            </div>
+            <p id="pv-desc" style="margin-top: 12px; color: var(--muted)"></p>
+
+            <hr
+              style="
+                margin: 12px 0;
+                border: none;
+                border-top: 1px solid #f0f4ff;
+              "
+            />
+            <div class="small">Pengirim: <strong id="pv-sender"></strong></div>
+            <div class="small">ORMAWA: <strong id="pv-ormawa"></strong></div>
+            <div class="small">
+              Meeting: <strong id="pv-meeting-time"></strong> —
+              <span id="pv-meeting-loc"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top: 14px">
+          <div class="list-title">Daftar Reminder</div>
+          <div id="list-empty" class="small">Belum ada data tersimpan.</div>
+          <table id="table-data" style="display: none">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Judul</th>
+                <th>Waktu</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <div class="card" style="margin-top: 14px">
+          <div class="small">Catatan</div>
+          <p class="small" style="color: var(--muted)">
+            Data disimpan di browser (localStorage). Export Excel menghasilkan
+            file .xlsx. Meeting PDF otomatis membuat laporan rapi siap cetak.
+          </p>
+        </div>
+      </aside>
+    </div>
+
+    <script>
+      // Utilities
+      const storageKey = "bem_reminders_v2";
+      function loadData() {
+        return JSON.parse(localStorage.getItem(storageKey) || "[]");
+      }
+      function saveData(arr) {
+        localStorage.setItem(storageKey, JSON.stringify(arr));
+      }
+
+      // Initial UI update
+      function refreshUI() {
+        const data = loadData();
+        const preview = document.getElementById("preview");
+        const previewEmpty = document.getElementById("preview-empty");
+        const listEmpty = document.getElementById("list-empty");
+        const table = document.getElementById("table-data");
+        const tbody = table.querySelector("tbody");
+
+        if (data.length === 0) {
+          preview.style.display = "none";
+          previewEmpty.style.display = "block";
+          table.style.display = "none";
+          listEmpty.style.display = "block";
+        } else {
+          const last = data[data.length - 1];
+          preview.style.display = "block";
+          previewEmpty.style.display = "none";
+          document.getElementById("pv-title").innerText = last.title;
+          document.getElementById("pv-desc").innerText = last.desc;
+          document.getElementById("pv-priority").innerText = last.priority;
+          document.getElementById("pv-time").innerText = new Date(
+            last.datetime
+          ).toLocaleString();
+          document.getElementById("pv-loc").innerText = last.location;
+          document.getElementById("pv-sender").innerText =
+            last.sender + (last.addPerson ? " / " + last.addPerson : "");
+          document.getElementById("pv-ormawa").innerText = last.ormawa || "-";
+          document.getElementById("pv-meeting-time").innerText =
+            last.meetingTime
+              ? new Date(last.meetingTime).toLocaleString()
+              : "-";
+          document.getElementById("pv-meeting-loc").innerText =
+            last.meetingLocation || "-";
+
+          // table
+          tbody.innerHTML = "";
+          data.forEach((d) => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `<td style="font-weight:700">${d.id}</td><td>${
+              d.title
+            }</td><td>${new Date(d.datetime).toLocaleString()}</td>`;
+            tbody.appendChild(tr);
+          });
+          table.style.display = "table";
+          listEmpty.style.display = "none";
+        }
+      }
+      refreshUI();
+
+      // Clear form
+      function clearForm() {
+        [
+          "notif-title",
+          "notif-message",
+          "notif-time",
+          "notif-priority",
+          "notif-location",
+          "sender-name",
+          "ormawa-name",
+          "meeting-time",
+          "meeting-location",
+          "meeting-urgency",
+          "add-person",
+          "meeting-desc",
+        ].forEach((id) => {
+          const el = document.getElementById(id);
+          if (!el) return;
+          if (el.tagName === "SELECT") el.selectedIndex = 0;
+          else el.value = "";
+        });
+      }
+
+      // Set reminder
+      function setReminder() {
+        const title = document.getElementById("notif-title").value.trim();
+        const desc = document.getElementById("notif-message").value.trim();
+        const datetime = document.getElementById("notif-time").value;
+        const priority = document.getElementById("notif-priority").value;
+        const location = document.getElementById("notif-location").value.trim();
+
+        const sender = document.getElementById("sender-name").value;
+        const ormawa = document.getElementById("ormawa-name").value.trim();
+        const meetingTime = document.getElementById("meeting-time").value;
+        const meetingLocation = document
+          .getElementById("meeting-location")
+          .value.trim();
+        const urgency = document.getElementById("meeting-urgency").value;
+        const addPerson = document.getElementById("add-person").value.trim();
+        const meetingDesc = document
+          .getElementById("meeting-desc")
+          .value.trim();
+
+        if (!title || !desc || !datetime) {
+          alert("Judul, pesan, dan waktu notifikasi wajib diisi.");
+          return;
+        }
+
+        const data = loadData();
+        const id = "HMSI-" + (1000 + data.length + 1);
+        const item = {
+          id,
+          title,
+          desc,
+          datetime,
+          priority,
+          location,
+          sender,
+          ormawa,
+          meetingTime,
+          meetingLocation,
+          urgency,
+          addPerson,
+          meetingDesc,
+          createdAt: new Date().toISOString(),
+        };
+
+        data.push(item);
+        saveData(data);
+        refreshUI();
+
+        // schedule browser notification (if time in future)
+        const delay = new Date(datetime).getTime() - Date.now();
+        if (delay > 0) {
+          setTimeout(() => {
+            // simple in-page notification (browser notifications require permission)
+            alert("NOTIF: " + title + "\n" + desc);
+          }, delay);
+        }
+
+        // feedback & clear only some fields
+        alert("Reminder tersimpan dan akan aktif pada waktu yang ditentukan.");
+        clearForm();
+      }
+
+      // Export Excel (SheetJS)
+      function exportExcel() {
+        const data = loadData();
+        if (data.length === 0) {
+          alert("Data kosong.");
+          return;
+        }
+
+        // prepare rows with chosen columns and human readable times
+        const rows = data.map((d) => ({
+          ID: d.id,
+          Judul: d.title,
+          Deskripsi: d.desc,
+          "Waktu Notifikasi": d.datetime,
+          Prioritas: d.priority,
+          "Lokasi Notif": d.location,
+          Pengirim: d.sender + (d.addPerson ? " / " + d.addPerson : ""),
+          ORMAWA: d.ormawa,
+          "Waktu Rapat": d.meetingTime || "",
+          "Lokasi Rapat": d.meetingLocation || "",
+          Urgensi: d.urgency || "",
+          Pembahasan: d.meetingDesc || "",
+          "Dibuat Pada": d.createdAt,
+        }));
+
+        const ws = XLSX.utils.json_to_sheet(rows);
+        // set column widths (approx)
+        ws["!cols"] = [
+          { wch: 12 },
+          { wch: 28 },
+          { wch: 40 },
+          { wch: 20 },
+          { wch: 12 },
+          { wch: 18 },
+          { wch: 22 },
+          { wch: 18 },
+          { wch: 20 },
+          { wch: 18 },
+          { wch: 12 },
+          { wch: 36 },
+          { wch: 20 },
+        ];
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Reminder");
+        XLSX.writeFile(wb, "BEM_Reminder.xlsx");
+      }
+
+      // Export all data table PDF (simple table)
+      function exportAllPDF() {
+        const data = loadData();
+        if (data.length === 0) {
+          alert("Data kosong.");
+          return;
+        }
+
+        // build HTML report (title + each meeting block)
+        let html = `<div style="font-family:Inter,Arial; padding:18px;">`;
+        html += `<h2 style="color:${getComputedStyle(
+          document.documentElement
+        ).getPropertyValue(
+          "--primary"
+        )}; margin-bottom:6px">Laporan Rapat — BEM IDE LPKIA</h2>`;
+        html += `<p style="margin-top:0; color:#444; font-size:13px">Dicetak: ${new Date().toLocaleString()}</p>`;
+        html += `<hr style="border:none;border-top:2px solid #eef2ff;margin:12px 0">`;
+
+        data.forEach((d, idx) => {
+          html += `<div style="margin-bottom:14px">`;
+          html += `<h3 style="margin:0 0 6px;color:#0b1220">${
+            idx + 1
+          }. ${escapeHtml(d.title)}</h3>`;
+          html += `<table style="width:100%; border-collapse:collapse; margin-bottom:8px; font-size:13px">`;
+          html += `<tr><td style="padding:6px;border:1px solid #f0f4ff; width:140px;"><strong>ID</strong></td><td style="padding:6px;border:1px solid #f0f4ff">${d.id}</td></tr>`;
+          html += `<tr><td style="padding:6px;border:1px solid #f0f4ff"><strong>Pengirim</strong></td><td style="padding:6px;border:1px solid #f0f4ff">${escapeHtml(
+            d.sender
+          )}${d.addPerson ? " / " + escapeHtml(d.addPerson) : ""}</td></tr>`;
+          html += `<tr><td style="padding:6px;border:1px solid #f0f4ff"><strong>ORMAWA</strong></td><td style="padding:6px;border:1px solid #f0f4ff">${escapeHtml(
+            d.ormawa || "-"
+          )}</td></tr>`;
+          html += `<tr><td style="padding:6px;border:1px solid #f0f4ff"><strong>Waktu Rapat</strong></td><td style="padding:6px;border:1px solid #f0f4ff">${
+            d.meetingTime ? new Date(d.meetingTime).toLocaleString() : "-"
+          }</td></tr>`;
+          html += `<tr><td style="padding:6px;border:1px solid #f0f4ff"><strong>Lokasi Rapat</strong></td><td style="padding:6px;border:1px solid #f0f4ff">${escapeHtml(
+            d.meetingLocation || "-"
+          )}</td></tr>`;
+          html += `<tr><td style="padding:6px;border:1px solid #f0f4ff"><strong>Urgensi</strong></td><td style="padding:6px;border:1px solid #f0f4ff">${escapeHtml(
+            d.urgency || "-"
+          )}</td></tr>`;
+          html += `<tr><td style="padding:6px;border:1px solid #f0f4ff"><strong>Deskripsi</strong></td><td style="padding:6px;border:1px solid #f0f4ff">${escapeHtml(
+            d.meetingDesc || "-"
+          )}</td></tr>`;
+          html += `</table>`;
+          html += `</div>`;
+        });
+
+        // signature
+        html += `<div style="margin-top:18px; font-size:13px; color:#333">`;
+        html += `<p>Dokumen ini dihasilkan otomatis oleh <strong>BEM IDE LPKIA — HMSI Smart</strong></p>`;
+        html += `<p style="margin-top:28px">Hormat kami,<br><br><strong>Emir Davanka Ibrohim</strong><br>Presiden Mahasiswa — BEM IDE LPKIA</p>`;
+        html += `</div>`;
+
+        html += `</div>`;
+
+        const opt = {
+          margin: 12,
+          filename: "Laporan_Rapat_BEM.pdf",
+          image: { type: "jpeg", quality: 0.98 },
+          html2canvas: { scale: 2 },
+          jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+        };
+
+        html2pdf().from(html).set(opt).save();
+      }
+
+      // WhatsApp export (formal, no emoji) — will open WA with message
+      function exportWA() {
+        const data = loadData();
+        if (data.length === 0) {
+          alert("Data kosong.");
+          return;
+        }
+
+        let text =
+          "HMSI SMART ATTENDANCE — DATA REMINDER\n====================================\n\n";
+        data.forEach((d, i) => {
+          text += `${i + 1}. ${d.title.toUpperCase()}\n`;
+          text += `ID Reminder : ${d.id}\n`;
+          text += `Pengirim    : ${d.sender}${
+            d.addPerson ? " / " + d.addPerson : ""
+          }\n`;
+          text += `ORMAWA      : ${d.ormawa || "-"}\n`;
+          text += `Pesan       : ${d.desc}\n`;
+          text += `Waktu Notif : ${d.datetime}\n`;
+          if (d.meetingTime)
+            text += `Waktu Rapat : ${new Date(
+              d.meetingTime
+            ).toLocaleString()}\n`;
+          text += `Lokasi Rapat: ${d.meetingLocation || "-"}\n`;
+          text += `Urgensi     : ${d.urgency || "-"}\n`;
+          text += `Pembahasan  : ${d.meetingDesc || "-"}\n`;
+          text += `------------------------------------\n`;
+        });
+        text +=
+          "\nPesan ini dihasilkan otomatis oleh HMSI Smart Attendance — BEM IDE LPKIA.";
+        window.open(
+          "https://wa.me/?text=" + encodeURIComponent(text),
+          "_blank"
+        );
+      }
+
+      // helper to escape html for PDF
+      function escapeHtml(str) {
+        if (!str) return "";
+        return String(str).replace(
+          /[&<>"']/g,
+          (s) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            }[s])
+        );
+      }
+    </script>
+  </body>
+</html>
