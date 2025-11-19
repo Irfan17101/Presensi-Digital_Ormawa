@@ -232,47 +232,47 @@
     <script src="users-data.js"></script>
 
     <script>
-      function login(event) {
+    function login(event) {
         event.preventDefault();
         
-        const username = document.getElementById("username").value;
+        const usernameOrEmail = document.getElementById("username").value;
         const password = document.getElementById("password").value;
         const role = document.getElementById("role").value;
 
         // Validasi input
-        if(!username || !password || !role) {
-          alert('Semua field harus diisi!');
-          return false;
+        if(!usernameOrEmail || !password || !role) {
+            alert('Semua field harus diisi!');
+            return false;
         }
 
-        // Cari user di database
+        // Cari user di database - BISA DENGAN USERNAME ATAU EMAIL
         const users = getUsers();
         const user = users.find(u => 
-          u.username === username && 
-          u.password === password && 
-          u.role === role
+            (u.username === usernameOrEmail || u.email === usernameOrEmail) && 
+            u.password === password && 
+            u.role === role
         );
 
         if(user) {
-          // Simpan user yang login ke localStorage
-          localStorage.setItem('currentUser', JSON.stringify(user));
-          
-          // Tampilkan loading
-          const btn = event.target.querySelector('.btn');
-          btn.innerHTML = 'Masuk...';
-          btn.disabled = true;
+            // Simpan user yang login ke localStorage
+            localStorage.setItem('currentUser', JSON.stringify(user));
+            
+            // Tampilkan loading
+            const btn = event.target.querySelector('.btn');
+            btn.innerHTML = 'Masuk...';
+            btn.disabled = true;
 
-          // Redirect berdasarkan role
-          setTimeout(() => {
-            if(user.role === 'admin') {
-              window.location.href = 'dashboard-admin.html';
-            } else {
-              window.location.href = 'dashboard-anggota.html';
-            }
-          }, 1000);
-          
+            // Redirect berdasarkan role
+            setTimeout(() => {
+                if(user.role === 'admin') {
+                    window.location.href = 'dashboard-admin.html';
+                } else {
+                    window.location.href = 'dashboard-anggota.html';
+                }
+            }, 1000);
+            
         } else {
-          alert('Username, password, atau role salah!');
+            alert('Username/email, password, atau role salah!');
         }
         
         return false;
