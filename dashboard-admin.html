@@ -4,6 +4,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
     <title>Admin Dashboard - Presinize</title>
+    
+    <link rel="stylesheet" href="https://unpkg.com/framework7/framework7-bundle.min.css" />
+    <script src="https://unpkg.com/framework7/framework7-bundle.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
     <style>
         * {
             margin: 0;
@@ -20,36 +25,72 @@
         .admin-header {
             background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
             color: white;
-            padding: 50px 20px 20px 20px;
+            padding: 60px 20px 20px 20px;
+            border-bottom-left-radius: 25px;
+            border-bottom-right-radius: 25px;
         }
 
         .admin-badge {
             background: rgba(255,255,255,0.3);
-            padding: 4px 12px;
+            padding: 6px 14px;
             border-radius: 20px;
             font-size: 0.8rem;
             display: inline-block;
             margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .admin-info h1 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+
+        .admin-info p {
+            opacity: 0.9;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
         }
 
         .stats-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 12px;
+            gap: 15px;
             padding: 20px;
-            margin-top: -30px;
+            margin-top: -40px;
         }
 
         .stat-card {
             background: white;
             padding: 20px;
             border-radius: 16px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
             text-align: center;
+            border-left: 4px solid #ff6b6b;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #ff6b6b;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+            font-weight: 500;
         }
 
         .admin-menu {
             padding: 20px;
+        }
+
+        .menu-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 15px;
         }
 
         .menu-grid {
@@ -64,54 +105,167 @@
             border-radius: 16px;
             text-align: center;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
         }
 
         .menu-item.admin-feature {
             border: 2px solid #ff6b6b;
+        }
+
+        .menu-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .menu-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .menu-label {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.9rem;
+        }
+
+        .logout-section {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .logout-btn {
+            background: #ff4757;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            max-width: 200px;
+            font-size: 1rem;
+        }
+
+        .logout-btn:hover {
+            background: #ff3742;
         }
     </style>
 </head>
 <body>
     <div class="admin-header">
         <div class="admin-badge">ADMIN</div>
-        <h1 id="adminName">Admin Name</h1>
-        <p id="adminOrg">Organization</p>
+        <div class="admin-info">
+            <h1 id="adminName">Admin Name</h1>
+            <p id="adminOrg">Organization</p>
+            <p id="adminEmail">Email: -</p>
+        </div>
     </div>
 
     <div class="stats-grid">
         <div class="stat-card">
-            <div class="stat-number">156</div>
+            <div class="stat-number" id="totalAnggota">0</div>
             <div class="stat-label">Total Anggota</div>
         </div>
         <div class="stat-card">
-            <div class="stat-number">89%</div>
-            <div class="stat-label">Kehadiran</div>
+            <div class="stat-number" id="persentaseKehadiran">0%</div>
+            <div class="stat-label">Rata-rata Kehadiran</div>
         </div>
     </div>
 
     <div class="admin-menu">
+        <div class="menu-title">Menu Admin</div>
         <div class="menu-grid">
-            <div class="menu-item admin-feature">
+            <div class="menu-item admin-feature" onclick="kelolaAnggota()">
                 <div class="menu-icon">👥</div>
                 <div class="menu-label">Kelola Anggota</div>
             </div>
-            <div class="menu-item admin-feature">
+            <div class="menu-item admin-feature" onclick="laporanPresensi()">
                 <div class="menu-icon">📊</div>
                 <div class="menu-label">Laporan Presensi</div>
             </div>
+            <div class="menu-item admin-feature" onclick="kelolaKegiatan()">
+                <div class="menu-icon">📅</div>
+                <div class="menu-label">Kelola Kegiatan</div>
+            </div>
+            <div class="menu-item admin-feature" onclick="exportData()">
+                <div class="menu-icon">📤</div>
+                <div class="menu-label">Export Data</div>
+            </div>
+            <div class="menu-item" onclick="lihatNotifikasi()">
+                <div class="menu-icon">🔔</div>
+                <div class="menu-label">Notifikasi</div>
+            </div>
+            <div class="menu-item" onclick="lihatRekap()">
+                <div class="menu-icon">📋</div>
+                <div class="menu-label">Rekap Izin</div>
+            </div>
         </div>
+    </div>
+
+    <div class="logout-section">
+        <button class="logout-btn" onclick="logout()">Logout</button>
     </div>
 
     <script>
         // Cek apakah user adalah admin
         const currentUser = JSON.parse(localStorage.getItem('currentUser'));
         
-        if(!currentUser || currentUser.role !== 'admin') {
-            alert('Akses ditolak. Hanya untuk admin.');
+        if(!currentUser) {
+            alert('Silakan login terlebih dahulu');
             window.location.href = 'login.html';
+        } else if(currentUser.role !== 'admin') {
+            alert('Akses ditolak. Hanya untuk admin.');
+            window.location.href = 'dashboard-anggota.html';
         } else {
             document.getElementById('adminName').textContent = currentUser.name;
             document.getElementById('adminOrg').textContent = currentUser.organization;
+            document.getElementById('adminEmail').textContent = 'Email: ' + currentUser.email;
+            
+            loadAdminStats();
+        }
+
+        function loadAdminStats() {
+            // Simulasi data statistik admin
+            const users = JSON.parse(localStorage.getItem('presinize_users') || '[]');
+            const totalAnggota = users.filter(user => user.role === 'user').length;
+            
+            document.getElementById('totalAnggota').textContent = totalAnggota;
+            document.getElementById('persentaseKehadiran').textContent = '89%';
+        }
+
+        function kelolaAnggota() {
+            alert('Fitur Kelola Anggota akan segera hadir!');
+            // window.location.href = 'kelola-anggota.html';
+        }
+
+        function laporanPresensi() {
+            alert('Fitur Laporan Presensi akan segera hadir!');
+            // window.location.href = 'laporan-presensi.html';
+        }
+
+        function kelolaKegiatan() {
+            alert('Fitur Kelola Kegiatan akan segera hadir!');
+            // window.location.href = 'kelola-kegiatan.html';
+        }
+
+        function exportData() {
+            alert('Fitur Export Data akan segera hadir!');
+            // window.location.href = 'export-data.html';
+        }
+
+        function lihatNotifikasi() {
+            window.location.href = 'notifications.html';
+        }
+
+        function lihatRekap() {
+            window.location.href = 'rekap-izin.html';
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'login.html';
         }
     </script>
 </body>

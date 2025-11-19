@@ -5,25 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Login - Presinize</title>
 
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/framework7/framework7-bundle.min.css"
-    />
+    <link rel="stylesheet" href="https://unpkg.com/framework7/framework7-bundle.min.css" />
     <script src="https://unpkg.com/framework7/framework7-bundle.min.js"></script>
-
-    <!-- Apple Font -->
-    <link
-      href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
     <style>
       * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
-        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display",
-          "Segoe UI", Roboto, sans-serif;
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
       }
 
       body {
@@ -84,9 +75,18 @@
       .input-group {
         position: relative;
         margin-bottom: 20px;
+        text-align: left;
       }
 
-      .input-group input {
+      .input-label {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 14px;
+        font-weight: 500;
+        margin-bottom: 6px;
+        display: block;
+      }
+
+      .input-group input, .input-group select {
         width: 100%;
         padding: 16px 18px;
         border-radius: 12px;
@@ -98,7 +98,7 @@
         font-weight: 400;
       }
 
-      .input-group input:focus {
+      .input-group input:focus, .input-group select:focus {
         border-color: #3b0eac;
         box-shadow: 0 0 0 3px rgba(59, 14, 172, 0.2);
         background: white;
@@ -157,7 +157,6 @@
         }
       }
 
-      /* Floating background effect */
       .bg-shape {
         position: absolute;
         width: 200px;
@@ -181,8 +180,7 @@
       }
 
       @keyframes float {
-        0%,
-        100% {
+        0%, 100% {
           transform: translateY(0) scale(1);
         }
         50% {
@@ -206,15 +204,20 @@
 
       <form onsubmit="return login(event)">
         <div class="input-group">
-          <input type="text" id="username" placeholder="Username" required />
+          <label class="input-label">Username</label>
+          <input type="text" id="username" placeholder="Masukkan username" required />
         </div>
         <div class="input-group">
-          <input
-            type="password"
-            id="password"
-            placeholder="Password"
-            required
-          />
+          <label class="input-label">Password</label>
+          <input type="password" id="password" placeholder="Masukkan password" required />
+        </div>
+        <div class="input-group">
+          <label class="input-label">Role</label>
+          <select id="role" required>
+            <option value="">Pilih Role</option>
+            <option value="user">Anggota</option>
+            <option value="admin">Admin</option>
+          </select>
         </div>
         <button class="btn" type="submit">Masuk</button>
       </form>
@@ -225,21 +228,67 @@
       </div>
     </div>
 
+    <!-- Load users data -->
+    <script src="users-data.js"></script>
+
     <script>
       function login(event) {
         event.preventDefault();
+        
         const username = document.getElementById("username").value;
         const password = document.getElementById("password").value;
+        const role = document.getElementById("role").value;
 
-        // Simulasi login sederhana
-        if (username && password) {
-          alert(`Halo ${username}! Anda berhasil login ke Presinize`);
-          // Redirect ke dashboard setelah login berhasil
-          // window.location.href = 'dashboard.html';
-        } else {
-          alert("Silakan isi username dan password");
+        // Validasi input
+        if(!username || !password || !role) {
+          alert('Semua field harus diisi!');
+          return false;
         }
+
+        // Cari user di database
+        const users = getUsers();
+        const user = users.find(u => 
+          u.username === username && 
+          u.password === password && 
+          u.role === role
+        );
+
+        if(user) {
+          // Simpan user yang login ke localStorage
+          localStorage.setItem('currentUser', JSON.stringify(user));
+          
+          // Tampilkan loading
+          const btn = event.target.querySelector('.btn');
+          btn.innerHTML = 'Masuk...';
+          btn.disabled = true;
+
+          // Redirect berdasarkan role
+          setTimeout(() => {
+            if(user.role === 'admin') {
+              window.location.href = 'dashboard-admin.html';
+            } else {
+              window.location.href = 'dashboard-anggota.html';
+            }
+          }, 1000);
+          
+        } else {
+          alert('Username, password, atau role salah!');
+        }
+        
+        return false;
       }
+
+      // Cek jika user sudah login
+      window.addEventListener('load', function() {
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        if(currentUser) {
+          if(currentUser.role === 'admin') {
+            window.location.href = 'dashboard-admin.html';
+          } else {
+            window.location.href = 'dashboard-anggota.html';
+          }
+        }
+      });
     </script>
   </body>
 </html>
