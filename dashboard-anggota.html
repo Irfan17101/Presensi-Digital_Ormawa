@@ -1,20 +1,30 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+    />
     <title>Dashboard Anggota - Presinize</title>
-    
-    <link rel="stylesheet" href="https://unpkg.com/framework7/framework7-bundle.min.css" />
+
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/framework7/framework7-bundle.min.css"
+    />
     <script src="https://unpkg.com/framework7/framework7-bundle.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
 
     <style>
       * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
-        font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+          sans-serif;
       }
 
       body {
@@ -25,61 +35,148 @@
       .user-header {
         background: linear-gradient(135deg, #3b0eac, #5d2ee6);
         color: white;
-        padding: 60px 20px 20px 20px;
-        border-bottom-left-radius: 25px;
-        border-bottom-right-radius: 25px;
+        padding: 50px 20px 30px 20px;
+        border-bottom-left-radius: 30px;
+        border-bottom-right-radius: 30px;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        transition: filter 0.2s;
+        box-shadow: 0 10px 30px rgba(59, 14, 172, 0.3);
+        margin-bottom: 25px;
       }
 
-      .user-badge {
-        background: rgba(255,255,255,0.3);
-        padding: 6px 14px;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        display: inline-block;
-        margin-bottom: 10px;
-        font-weight: 600;
+      .user-header:active {
+        filter: brightness(0.9);
+        transform: scale(0.99);
+      }
+
+      .header-content {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+
+      .avatar-container {
+        width: 70px;
+        height: 70px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid rgba(255, 255, 255, 0.5);
+      }
+
+      .avatar-icon {
+        font-size: 40px;
+        color: white;
+      }
+
+      .user-info {
+        flex: 1;
       }
 
       .user-info h1 {
-        font-size: 1.8rem;
-        margin-bottom: 5px;
+        font-size: 1.5rem;
+        margin-bottom: 4px;
         font-weight: 700;
+        line-height: 1.2;
       }
 
-      .user-info p {
-        opacity: 0.9;
+      .user-meta {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 6px;
+      }
+
+      .org-badge {
+        background: rgba(255, 255, 255, 0.25);
+        padding: 2px 8px;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+      }
+
+      .nim-text {
+        opacity: 0.8;
+        font-size: 0.85rem;
+      }
+
+      .status-indicator {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 0.75rem;
+        color: #a8ffb4;
+        font-weight: 500;
+      }
+
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        background-color: #00ff2a;
+        border-radius: 50%;
+        box-shadow: 0 0 5px #00ff2a;
+      }
+
+      .header-arrow {
+        opacity: 0.5;
+      }
+
+      .activity-section {
+        padding: 0 20px;
         margin-bottom: 10px;
-        font-size: 0.9rem;
       }
 
-      .stats-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 15px;
-        padding: 20px;
-        margin-top: -40px;
-      }
-
-      .stat-card {
+      .activity-card-dashboard {
         background: white;
         padding: 20px;
         border-radius: 16px;
-        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-        text-align: center;
-        border-left: 4px solid #3b0eac;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        border-left: 5px solid #2ecc71;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        transition: transform 0.2s;
       }
 
-      .stat-number {
-        font-size: 2rem;
+      .activity-card-dashboard:active {
+        transform: scale(0.98);
+      }
+
+      .ac-content h3 {
+        font-size: 1.1rem;
         font-weight: 700;
-        color: #3b0eac;
+        color: #333;
         margin-bottom: 5px;
       }
 
-      .stat-label {
+      .ac-content p {
         color: #666;
         font-size: 0.9rem;
-        font-weight: 500;
+        margin-bottom: 2px;
+      }
+
+      .ac-badge {
+        background: #e8f5e9;
+        color: #2ecc71;
+        padding: 5px 10px;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-width: 60px;
+      }
+
+      .ac-badge span {
+        display: block;
       }
 
       .user-menu {
@@ -104,7 +201,7 @@
         padding: 25px 15px;
         border-radius: 16px;
         text-align: center;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         cursor: pointer;
         transition: all 0.3s ease;
         border: 2px solid transparent;
@@ -112,7 +209,7 @@
 
       .menu-item:hover {
         transform: translateY(-3px);
-        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
         border-color: #3b0eac;
       }
 
@@ -130,6 +227,7 @@
       .logout-section {
         padding: 20px;
         text-align: center;
+        margin-bottom: 30px;
       }
 
       .logout-btn {
@@ -149,120 +247,127 @@
         background: #ff3742;
       }
     </style>
-</head>
-<body>
-    <div class="user-header">
-        <div class="user-badge">ANGGOTA</div>
-        <div class="user-info">
-            <h1 id="userName">Nama Anggota</h1>
-            <p id="userOrg">Organisasi</p>
-            <p id="userNim">NIM: -</p>
+  </head>
+  <body>
+    <div class="user-header" onclick="goToProfil()">
+      <div class="header-content">
+        <div class="avatar-container">
+          <span class="avatar-icon">👤</span>
         </div>
+
+        <div class="user-info">
+          <h1 id="userName">Memuat...</h1>
+          <div class="user-meta">
+            <span id="userOrg" class="org-badge">ORG</span>
+            <span id="userNim" class="nim-text">NIM: -</span>
+          </div>
+          <div class="status-indicator">
+            <span class="status-dot"></span>
+            <span>Anggota Aktif</span>
+          </div>
+        </div>
+
+        <div class="header-arrow">
+          <span style="font-size: 24px">›</span>
+        </div>
+      </div>
     </div>
 
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-number" id="kehadiranCount">0</div>
-            <div class="stat-label">Total Kehadiran</div>
+    <div class="activity-section">
+      <div class="menu-title">Sedang Berlangsung</div>
+      <div class="activity-card-dashboard" onclick="goToPresensi()">
+        <div class="ac-content">
+          <h3>Workshop Tech 4.0</h3>
+          <p>📅 Hari Ini, 08:00 - 12:00</p>
+          <p>📍 Aula Utama Kampus</p>
         </div>
-        <div class="stat-card">
-            <div class="stat-number" id="persentaseHadir">0%</div>
-            <div class="stat-label">Persentase</div>
+        <div class="ac-badge">
+          <span>● LIVE</span>
         </div>
+      </div>
     </div>
 
     <div class="user-menu">
-        <div class="menu-title">Menu Utama</div>
-        <div class="menu-grid">
-            <div class="menu-item" onclick="goToPresensi()">
-                <div class="menu-icon">📱</div>
-                <div class="menu-label">Presensi</div>
-            </div>
-            <div class="menu-item" onclick="goToIzin()">
-                <div class="menu-icon">📝</div>
-                <div class="menu-label">Ajukan Izin</div>
-            </div>
-            <div class="menu-item" onclick="goToRekap()">
-                <div class="menu-icon">📊</div>
-                <div class="menu-label">Rekap Saya</div>
-            </div>
-            <div class="menu-item" onclick="goToNotifikasi()">
-                <div class="menu-icon">🔔</div>
-                <div class="menu-label">Notifikasi</div>
-            </div>
-            <div class="menu-item" onclick="goToKegiatan()">
-                <div class="menu-icon">📅</div>
-                <div class="menu-label">Jadwal</div>
-            </div>
-            <div class="menu-item" onclick="goToProfil()">
-                <div class="menu-icon">👤</div>
-                <div class="menu-label">Profil</div>
-            </div>
+      <div class="menu-title">Menu Utama</div>
+      <div class="menu-grid">
+        <div class="menu-item" onclick="goToPresensi()">
+          <div class="menu-icon">📱</div>
+          <div class="menu-label">Presensi</div>
         </div>
+        <div class="menu-item" onclick="goToIzin()">
+          <div class="menu-icon">📝</div>
+          <div class="menu-label">Ajukan Izin</div>
+        </div>
+        <div class="menu-item" onclick="goToRekap()">
+          <div class="menu-icon">📊</div>
+          <div class="menu-label">Rekap Saya</div>
+        </div>
+        <div class="menu-item" onclick="goToNotifikasi()">
+          <div class="menu-icon">🔔</div>
+          <div class="menu-label">Notifikasi</div>
+        </div>
+        <div class="menu-item" onclick="goToKegiatan()">
+          <div class="menu-icon">📅</div>
+          <div class="menu-label">Jadwal</div>
+        </div>
+        <div class="menu-item" onclick="goToProfil()">
+          <div class="menu-icon">👤</div>
+          <div class="menu-label">Profil</div>
+        </div>
+      </div>
     </div>
 
     <div class="logout-section">
-        <button class="logout-btn" onclick="logout()">Logout</button>
+      <button class="logout-btn" onclick="logout()">Logout</button>
     </div>
 
     <script>
-        // Cek login dan load data user
-        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-        
-        if(!currentUser) {
-            alert('Silakan login terlebih dahulu');
-            window.location.href = 'login.html';
-        } else if(currentUser.role === 'admin') {
-            // Jika admin akses dashboard anggota, redirect ke admin
-            window.location.href = 'dashboard-admin.html';
-        } else {
-            // Tampilkan data user
-            document.getElementById('userName').textContent = currentUser.name;
-            document.getElementById('userOrg').textContent = currentUser.organization;
-            document.getElementById('userNim').textContent = 'NIM: ' + currentUser.nim;
-            
-            // Load statistik user
-            loadUserStats();
-        }
+      const currentUser = JSON.parse(localStorage.getItem("currentUser"));
 
-        function loadUserStats() {
-            // Simulasi data statistik (nanti bisa dari database)
-            const stats = JSON.parse(localStorage.getItem(`stats_${currentUser.id}`) || '{"kehadiran": 12, "total": 15}');
-            const persentase = Math.round((stats.kehadiran / stats.total) * 100);
-            
-            document.getElementById('kehadiranCount').textContent = stats.kehadiran;
-            document.getElementById('persentaseHadir').textContent = persentase + '%';
-        }
+      if (!currentUser) {
+        alert("Silakan login terlebih dahulu");
+        window.location.href = "login.html";
+      } else if (currentUser.role === "admin") {
+        // Jika admin akses dashboard anggota, redirect ke admin
+        window.location.href = "dashboard-admin.html";
+      } else {
+        // Tampilkan data user pada header baru
+        document.getElementById("userName").textContent = currentUser.name;
+        document.getElementById("userOrg").textContent =
+          currentUser.organization;
+        document.getElementById("userNim").textContent =
+          "NIM: " + currentUser.nim;
+      }
 
-        function goToPresensi() {
-            // Redirect ke halaman presensi sesuai organisasi
-            window.location.href = `Presensi-${currentUser.organization}.html`;
-        }
+      function goToPresensi() {
+        // Redirect ke halaman presensi sesuai organisasi
+        window.location.href = `Presensi-${currentUser.organization}.html`;
+      }
 
-        function goToIzin() {
-            window.location.href = 'izin.html';
-        }
+      function goToIzin() {
+        window.location.href = "izin.html";
+      }
 
-        function goToRekap() {
-            window.location.href = 'rekap-kehadiran.html';
-        }
+      function goToRekap() {
+        window.location.href = "rekap-kehadiran.html";
+      }
 
-        function goToNotifikasi() {
-            window.location.href = 'notifications.html';
-        }
+      function goToNotifikasi() {
+        window.location.href = "notifications.html";
+      }
 
-        function goToKegiatan() {
-            window.location.href = `Presensi-${currentUser.organization}.html#tab-kegiatan`;
-        }
+      function goToKegiatan() {
+        window.location.href = "Jadwal-Kegiatan.html";
+      }
 
-        function goToProfil() {
-            window.location.href = `Presensi-${currentUser.organization}.html#tab-profil`;
-        }
+      function goToProfil() {
+        window.location.href = `Presensi-${currentUser.organization}.html#tab-profil`;
+      }
 
-        function logout() {
-            localStorage.removeItem('currentUser');
-            window.location.href = 'login.html';
-        }
+      function logout() {
+        localStorage.removeItem("currentUser");
+        window.location.href = "login.html";
+      }
     </script>
-</body>
+  </body>
 </html>
