@@ -9,6 +9,12 @@
     <script src="https://unpkg.com/framework7/framework7-bundle.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
+    <!-- TAMBAHKAN FIREBASE -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="../../js/firebase-config.js"></script>
+
     <style>
         * {
             margin: 0;
@@ -214,25 +220,60 @@
         
         if(!currentUser) {
             alert('Silakan login terlebih dahulu');
-            window.location.href = 'login.html';
+            // PERBAIKAN PATH: ke halaman login di folder auth
+            window.location.href = 'auth/login.html';
         } else if(currentUser.role !== 'admin') {
             alert('Akses ditolak. Hanya untuk admin.');
+            // PERBAIKAN PATH: ke dashboard anggota di folder yang sama
             window.location.href = 'dashboard-anggota.html';
         } else {
-            document.getElementById('adminName').textContent = currentUser.name;
-            document.getElementById('adminOrg').textContent = currentUser.organization;
+            document.getElementById('adminName').textContent = currentUser.name || 'Admin';
+            document.getElementById('adminOrg').textContent = currentUser.organization || 'Organisasi';
             document.getElementById('adminEmail').textContent = 'Email: ' + currentUser.email;
             
             loadAdminStats();
         }
 
         function loadAdminStats() {
-            // Simulasi data statistik admin
-            const users = JSON.parse(localStorage.getItem('presinize_users') || '[]');
-            const totalAnggota = users.filter(user => user.role === 'user').length;
-            
-            document.getElementById('totalAnggota').textContent = totalAnggota;
-            document.getElementById('persentaseKehadiran').textContent = '89%';
+            // Load data real dari Firebase
+            if (firebase) {
+                const db = firebase.database();
+                
+                // Hitung total anggota
+                db.ref('users').once('value').then((snapshot) => {
+                    const users = snapshot.val();
+                    let totalAnggota = 0;
+                    
+                    if (users) {
+                        Object.keys(users).forEach(uid => {
+                            if (users[uid].role === 'user') {
+                                totalAnggota++;
+                            }
+                        });
+                    }
+                    
+                    document.getElementById('totalAnggota').textContent = totalAnggota;
+                });
+                
+                // Hitung persentase kehadiran (contoh sederhana)
+                db.ref('presensi').once('value').then((snapshot) => {
+                    const presensi = snapshot.val();
+                    let totalHadir = 0;
+                    let totalRecords = 0;
+                    
+                    if (presensi) {
+                        Object.keys(presensi).forEach(key => {
+                            if (presensi[key].status === 'Hadir') {
+                                totalHadir++;
+                            }
+                            totalRecords++;
+                        });
+                    }
+                    
+                    const persentase = totalRecords > 0 ? Math.round((totalHadir / totalRecords) * 100) : 0;
+                    document.getElementById('persentaseKehadiran').textContent = persentase + '%';
+                });
+            }
         }
 
         function kelolaAnggota() {
@@ -241,8 +282,8 @@
         }
 
         function laporanPresensi() {
-            alert('Fitur Laporan Presensi akan segera hadir!');
-            // window.location.href = 'laporan-presensi.html';
+            // PERBAIKAN PATH: ke rekap kehadiran
+            window.location.href = '../rekap/kehadiran.html';
         }
 
         function kelolaKegiatan() {
@@ -256,16 +297,33 @@
         }
 
         function lihatNotifikasi() {
-            window.location.href = 'notifications.html';
+            // PERBAIKAN PATH: ke notifications di root pages
+            window.location.href = '../notifications.html';
         }
 
         function lihatRekap() {
-            window.location.href = 'rekap-izin.html';
+            // PERBAIKAN PATH: ke rekap izin di folder rekap
+            window.location.href = '../rekap/izin.html';
         }
 
-        function logout() {
-            localStorage.removeItem('currentUser');
-            window.location.href = 'login.html';
+        async function logout() {
+            try {
+                // Logout dari Firebase
+                if (firebase) {
+                    await firebase.auth().signOut();
+                }
+                
+                // Hapus data local
+                localStorage.removeItem('currentUser');
+                
+                // PERBAIKAN PATH: redirect ke login di folder auth
+                window.location.href = 'auth/login.html';
+            } catch (error) {
+                console.error('Logout error:', error);
+                // Fallback: hapus local storage dan redirect
+                localStorage.removeItem('currentUser');
+                window.location.href = 'auth/login.html';
+            }
         }
     </script>
 </body>

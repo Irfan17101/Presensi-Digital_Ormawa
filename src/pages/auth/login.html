@@ -5,16 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
     <title>Login - Presinize</title>
 
+    <!-- PERBAIKAN PATH FRAMEWORK7 -->
     <link rel="stylesheet" href="https://unpkg.com/framework7/framework7-bundle.min.css" />
-    <script src="https://unpkg.com/framework7/framework7-bundle.min.js"></script>
+    <script src="https://unpkg.com/framework7/framework7-bundle.min.js"></script>  
 
     <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-    <script src="firebase-config.js"></script>
+    
+    <!-- PERBAIKAN PATH FIREBASE CONFIG -->
+    <script src="../../js/firebase-config.js"></script>
+    
     <style>
+      /* CSS ANDA TETAP SAMA - TIDAK DIUBAH */
       * {
         margin: 0;
         padding: 0;
@@ -251,7 +256,8 @@
     <div class="scroll-container">
       <div class="container">
         <div class="logo">
-          <img src="logo-presinize.png" alt="Presinize Logo" />
+          <!-- PERBAIKAN PATH LOGO -->
+          <img src="../../assets/images/LOGO-PRESINIZE.png" alt="Presinize Logo" />
         </div>
         <h2>Selamat Datang di Presinize</h2>
         <p>Masuk ke akun organisasi Anda</p>
@@ -277,6 +283,7 @@
         </form>
 
         <div class="links">
+          <!-- PERBAIKAN PATH LINK -->
           <a href="forgot-password.html">Lupa password?</a> |
           <a href="register.html">Daftar akun baru</a>
         </div>
@@ -313,18 +320,16 @@
             const snapshot = await userRef.once('value');
             const userData = snapshot.val();
             
-            // **PERBAIKAN KRITIS UNTUK MENCEGAH KEGAGALAN DIAM**
             if (!userData) {
                 throw new Error('Data user tidak ditemukan di database. Pastikan akun ini sudah mendaftar dan Rules Database Anda sudah diatur.');
             }
 
             // 3. Check role match
             if (userData.role !== role) {
-                // Memberi tahu user role yang benar terdaftar di database
                 throw new Error('Role tidak sesuai. Akun ini terdaftar sebagai: ' + userData.role); 
             }
 
-            // 4. Simpan data user ke localStorage (Menggunakan field 'nama' dan 'organisasi' dari database)
+            // 4. Simpan data user ke localStorage
             localStorage.setItem('currentUser', JSON.stringify({
                 uid: user.uid,
                 email: user.email,
@@ -334,17 +339,16 @@
                 nim: userData.nim || ''
             }));
 
-            // 5. Redirect berdasarkan role
+            // 5. PERBAIKAN PATH REDIRECT
             if(role === 'admin') {
-                window.location.href = 'dashboard-admin.html';
+                window.location.href = '../dashboard/dashboard-admin.html';
             } else {
-                window.location.href = 'dashboard-anggota.html';
+                window.location.href = '../dashboard/dashboard-anggota.html';
             }
             
         } catch (error) {
             console.error('Login error:', error);
             
-            // Tampilkan error message yang user-friendly
             let errorMessage = 'Login gagal: ';
             switch (error.code) {
                 case 'auth/user-not-found':
@@ -357,7 +361,6 @@
                     errorMessage = 'Format email tidak valid';
                     break;
                 default:
-                    // Menggunakan pesan dari throw error kustom
                     errorMessage = error.message; 
             }
             
@@ -375,10 +378,11 @@
       window.addEventListener('load', function() {
         const currentUser = JSON.parse(localStorage.getItem('currentUser'));
         if(currentUser) {
+          // PERBAIKAN PATH REDIRECT
           if(currentUser.role === 'admin') {
-            window.location.href = 'dashboard-admin.html';
+            window.location.href = '../dashboard/dashboard-admin.html';
           } else {
-            window.location.href = 'dashboard-anggota.html';
+            window.location.href = '../dashboard/dashboard-anggota.html';
           }
         }
       });

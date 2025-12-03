@@ -7,15 +7,15 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Daftar - Presinize</title>
 
-    <link rel="stylesheet" href="lib/framework7-bundle.min.css" />
-    <script src="lib/framework7-bundle.min.js"></script>  
+    <link rel="stylesheet" href="https://unpkg.com/framework7/framework7-bundle.min.css" />
+    <script src="https://unpkg.com/framework7/framework7-bundle.min.js"></script>
     
     <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-    <script src="firebase-config.js"></script>
+    <script src="../../js/firebase-config.js"></script>
     <style>
       * {
         margin: 0;
@@ -243,7 +243,7 @@
     <div class="scroll-container">
       <div class="container">
         <div class="logo">
-          <img src="logo-presinize.png" alt="Presinize Logo" />
+          <img src="../../assets/images/LOGO-PRESINIZE.png" alt="Presinize Logo" />
         </div>
         <h2>Daftar Akun</h2>
         <p>Bergabung dengan organisasi Anda</p>
@@ -291,9 +291,23 @@
     </div>
 
     <script>
+    function waitForFirebase(callback) {
+        if (window.isFirebaseReady && window.isFirebaseReady()) {
+            callback();
+        } else {
+            console.log("Waiting for Firebase...");
+            setTimeout(() => waitForFirebase(callback), 100);
+        }
+    }
     async function register(event) {
         event.preventDefault();
         
+        // Tunggu Firebase siap
+        if (!window.isFirebaseReady || !window.isFirebaseReady()) {
+            alert('Firebase belum siap, tunggu sebentar...');
+            return;
+        }
+
         const fullname = document.getElementById("fullname").value;
         const nim = document.getElementById("nim").value;
         const email = document.getElementById("email").value;
@@ -322,17 +336,21 @@
             // 1. Buat user di Firebase Auth
             const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
             const user = userCredential.user;
+            console.log("User Auth berhasil dibuat:", user.uid);
 
-            // 2. Simpan data user ke Realtime Database (Operasi Kritis)
-            // Menggunakan 'await' untuk memastikan operasi database selesai dan menangkap error (seperti Rules Error)
-            await firebase.database().ref('users/' + user.uid).set({ 
+            // 2. Simpan data user ke Realtime Database
+            const userData = { 
                 nama: fullname,
                 nim: nim,
                 email: email,
                 organisasi: organization,
                 role: 'user', // Default role untuk pendaftar
                 createdAt: new Date().toISOString()
-            });
+            };
+
+            // Tulis ke database
+            await firebase.database().ref('users/' + user.uid).set(userData);
+            console.log("Data user berhasil disimpan di database");
 
             alert('Pendaftaran berhasil! Silakan login.');
             window.location.href = 'login.html';
@@ -350,8 +368,10 @@
                 case 'auth/weak-password':
                     errorMessage += 'Password terlalu lemah';
                     break;
+                case 'PERMISSION_DENIED':
+                    errorMessage += 'Akses database ditolak. Periksa Firebase Rules.';
+                    break;
                 default:
-                    // Menangkap error dari Firebase Rules jika penulisan ke database gagal
                     errorMessage += error.message; 
             }
             alert(errorMessage);
@@ -360,7 +380,7 @@
             btn.innerHTML = originalText;
             btn.disabled = false;
         }
-      }
+    }
 
       // Prevent zoom on input focus
       document.addEventListener('touchstart', function(e) {

@@ -13,10 +13,7 @@
       href="https://unpkg.com/framework7/framework7-bundle.min.css"
     />
     <script src="https://unpkg.com/framework7/framework7-bundle.min.js"></script>
-    <link
-      href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
     <style>
       * {
@@ -256,21 +253,10 @@
         </div>
 
         <div class="user-info">
-          <h1 id="userName">Memuat...</h1>
-          <div class="user-meta">
-            <span id="userOrg" class="org-badge">ORG</span>
-            <span id="userNim" class="nim-text">NIM: -</span>
-          </div>
-          <div class="status-indicator">
-            <span class="status-dot"></span>
-            <span>Anggota Aktif</span>
-          </div>
+            <h1 id="userName">Nama Anggota</h1>
+            <p id="userOrg">Organisasi</p>
+            <p id="userNim">NIM: -</p>
         </div>
-
-        <div class="header-arrow">
-          <span style="font-size: 24px">›</span>
-        </div>
-      </div>
     </div>
 
     <div class="activity-section">
@@ -322,52 +308,63 @@
     </div>
 
     <script>
-      const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+        // Cek login dan load data user
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        
+        if(!currentUser) {
+            alert('Silakan login terlebih dahulu');
+            window.location.href = 'login.html';
+        } else if(currentUser.role === 'admin') {
+            // Jika admin akses dashboard anggota, redirect ke admin
+            window.location.href = 'dashboard-admin.html';
+        } else {
+            // Tampilkan data user
+            document.getElementById('userName').textContent = currentUser.name;
+            document.getElementById('userOrg').textContent = currentUser.organization;
+            document.getElementById('userNim').textContent = 'NIM: ' + currentUser.nim;
+            
+            // Load statistik user
+            loadUserStats();
+        }
 
-      if (!currentUser) {
-        alert("Silakan login terlebih dahulu");
-        window.location.href = "login.html";
-      } else if (currentUser.role === "admin") {
-        // Jika admin akses dashboard anggota, redirect ke admin
-        window.location.href = "dashboard-admin.html";
-      } else {
-        // Tampilkan data user pada header baru
-        document.getElementById("userName").textContent = currentUser.name;
-        document.getElementById("userOrg").textContent =
-          currentUser.organization;
-        document.getElementById("userNim").textContent =
-          "NIM: " + currentUser.nim;
-      }
+        function loadUserStats() {
+            // Simulasi data statistik (nanti bisa dari database)
+            const stats = JSON.parse(localStorage.getItem(`stats_${currentUser.id}`) || '{"kehadiran": 12, "total": 15}');
+            const persentase = Math.round((stats.kehadiran / stats.total) * 100);
+            
+            document.getElementById('kehadiranCount').textContent = stats.kehadiran;
+            document.getElementById('persentaseHadir').textContent = persentase + '%';
+        }
 
-      function goToPresensi() {
-        // Redirect ke halaman presensi sesuai organisasi
-        window.location.href = `Presensi-${currentUser.organization}.html`;
-      }
+        function goToPresensi() {
+            // Redirect ke halaman presensi sesuai organisasi
+            window.location.href = `Presensi-${currentUser.organization}.html`;
+        }
 
-      function goToIzin() {
-        window.location.href = "izin.html";
-      }
+        function goToIzin() {
+            window.location.href = 'izin.html';
+        }
 
-      function goToRekap() {
-        window.location.href = "rekap-kehadiran.html";
-      }
+        function goToRekap() {
+            window.location.href = 'rekap-kehadiran.html';
+        }
 
-      function goToNotifikasi() {
-        window.location.href = "notifications.html";
-      }
+        function goToNotifikasi() {
+            window.location.href = 'notifications.html';
+        }
 
-      function goToKegiatan() {
-        window.location.href = "Jadwal-Kegiatan.html";
-      }
+        function goToKegiatan() {
+            window.location.href = `Presensi-${currentUser.organization}.html#tab-kegiatan`;
+        }
 
-      function goToProfil() {
-        window.location.href = `Presensi-${currentUser.organization}.html#tab-profil`;
-      }
+        function goToProfil() {
+            window.location.href = `Presensi-${currentUser.organization}.html#tab-profil`;
+        }
 
-      function logout() {
-        localStorage.removeItem("currentUser");
-        window.location.href = "login.html";
-      }
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'login.html';
+        }
     </script>
   </body>
 </html>
