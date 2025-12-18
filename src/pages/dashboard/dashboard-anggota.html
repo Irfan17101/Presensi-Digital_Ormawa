@@ -91,9 +91,23 @@
         }
 
         // Fungsi navigasi lainnya (pastikan file-nya ada di folder dashboard)
-        function goToPresensi() { window.location.href = `Presensi-${currentUser.organization}.html`; }
+        function goToPresensi() { 
+            // Ambil inisial organisasi dari data login (contoh: 'HMIF', 'BPM', 'BEM')
+            const org = currentUser.organization; 
+
+            // Jika organisasi ada, arahkan ke folder presensi
+            // Kita keluar satu tingkat (../) lalu masuk ke folder presensi/
+            if (org) {
+                window.location.href = `../presensi/Presensi-${org}.html`; 
+            } else {
+                alert("Data organisasi tidak ditemukan!");
+            }
+        }
         function goToIzin() { window.location.href = 'izin.html'; }
-        function goToRekap() { window.location.href = 'rekap-kehadiran.html'; }
+        function goToRekap() {
+            // Keluar folder dashboard (../), masuk folder rekap, pilih file
+            window.location.href = '../rekap/rekap-kehadiran.html';
+        }
         function goToNotifikasi() { window.location.href = 'notifications.html'; }
         function goToKegiatan() { window.location.href = `Presensi-${currentUser.organization}.html#tab-kegiatan`; }
         function goToProfil() { window.location.href = `Presensi-${currentUser.organization}.html#tab-profil`; }
