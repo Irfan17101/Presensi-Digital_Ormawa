@@ -1,0 +1,61 @@
+<template>
+  <div class="page" data-name="presensi-scan">
+    <div class="navbar">
+      <div class="navbar-bg"></div>
+      <div class="navbar-inner sliding">
+        <div class="left">
+          <a href="#" class="link back">
+            <i class="icon icon-back"></i>
+            <span class="if-not-md">Back</span>
+          </a>
+        </div>
+        <div class="title">Scan Kehadiran</div>
+      </div>
+    </div>
+    <div class="page-content">
+      <div class="block block-strong text-align-center">
+        <p>Silakan scan QR Code Acara dan Ambil Selfie</p>
+
+        <div id="reader" style="width: 100%; display: none"></div>
+
+        <button class="button button-fill button-large" @click="startScan">
+          Mulai Absen
+        </button>
+
+        <div id="selfie-container" style="display: none; margin-top: 20px">
+          <p>Verifikasi Selfie:</p>
+          <video
+            id="selfie-video"
+            autoplay
+            playsinline
+            style="width: 100%; border-radius: 10px"
+          ></video>
+          <canvas id="selfie-canvas" style="display: none"></canvas>
+          <img
+            id="selfie-result"
+            src=""
+            style="width: 100%; display: none; border-radius: 10px"
+          />
+          <br />
+          <button
+            class="button button-fill color-green margin-top"
+            id="btn-submit-presensi"
+            style="display: none"
+          >
+            Kirim Kehadiran
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+<script>
+  return {
+    methods: {
+      startScan: function () {
+        // Logic akan dihandle di app.js via route event atau method disini
+        app.emit("startScanPresensi");
+      },
+    },
+  };
+</script>

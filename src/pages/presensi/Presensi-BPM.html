@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="id">
   <head>
-    <meta charset="UTF-8" />
+    <meta charset="utf-8" />
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover"
@@ -17,76 +17,43 @@
       href="https://fonts.googleapis.com/icon?family=Material+Icons"
     />
 
+    <script
+      src="https://unpkg.com/html5-qrcode"
+      type="text/javascript"
+    ></script>
+
     <style>
       :root {
-        --f7-theme-color: #4a47a3;
-        --f7-theme-color-rgb: 74, 71, 163;
+        --f7-theme-color: #4a47a3; /* Warna Tema BPM */
         --f7-page-bg-color: #f8f9fa;
-        --f7-navbar-bg-color: #ffffff;
-        --f7-navbar-text-color: #000000;
-        --f7-navbar-link-color: var(--f7-theme-color);
       }
+
+      /* Card Styles */
       .event-info-card {
         border-left: 5px solid var(--f7-theme-color);
-        border-radius: 8px;
-      }
-      .activity-card {
         border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        margin-bottom: 16px;
+        background: #fff;
       }
-      .activity-date {
-        background: var(--f7-theme-color);
-        color: white;
-        border-radius: 8px;
-        text-align: center;
-        padding: 8px;
-        width: 50px;
-      }
-      .profile-header {
-        background: #ffffff;
-        padding: 30px 20px;
-        text-align: center;
-        margin-bottom: 20px;
-        border-bottom: 1px solid #eee;
-      }
-      .profile-img {
-        width: 100px;
-        height: 100px;
-        border-radius: 50%;
-        background: #e0e0e0;
-        margin: 0 auto 15px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: 3px solid var(--f7-theme-color);
-      }
-      .scan-area {
-        width: 250px;
-        height: 250px;
-        border: 2px solid #00ff00;
-        margin: 50% auto 0;
-        transform: translateY(-50%);
-        position: relative;
-        box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.7);
-      }
-      .scan-line {
+
+      /* Camera Container Styles */
+      #reader {
         width: 100%;
-        height: 2px;
-        background: #00ff00;
-        position: absolute;
-        animation: scan 2s infinite;
+        border-radius: 12px;
+        overflow: hidden;
+        background: #000;
       }
-      @keyframes scan {
-        0% {
-          top: 0;
-        }
-        50% {
-          top: 100%;
-        }
-        100% {
-          top: 0;
-        }
+
+      #selfie-video,
+      #selfie-result {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transform: scaleX(-1);
+      }
+
+      #selfie-result {
+        transform: none;
+        display: none;
       }
     </style>
   </head>
@@ -94,90 +61,80 @@
   <body>
     <div id="app">
       <div class="view view-main view-init" data-url="/">
-        <div class="toolbar toolbar-bottom tabbar-icons">
-          <div class="toolbar-inner">
-            <a href="#tab-absen" class="tab-link tab-link-active"
-              ><i class="icon material-icons">qr_code_scanner</i
-              ><span class="tabbar-label">Absensi</span></a
-            >
-            <a href="#tab-kegiatan" class="tab-link"
-              ><i class="icon material-icons">event_note</i
-              ><span class="tabbar-label">Kegiatan</span></a
-            >
-            <a href="#tab-riwayat" class="tab-link"
-              ><i class="icon material-icons">history</i
-              ><span class="tabbar-label">Riwayat</span></a
-            >
-            <a href="#tab-profil" class="tab-link"
-              ><i class="icon material-icons">person</i
-              ><span class="tabbar-label">Profil</span></a
-            >
+        <div class="page" data-name="presensi-bpm">
+          <div class="navbar">
+            <div class="navbar-bg"></div>
+            <div class="navbar-inner">
+              <div class="left">
+                <a href="#" class="link back">
+                  <i class="icon material-icons">arrow_back</i>
+                </a>
+              </div>
+              <div class="title">Absensi BPM</div>
+              <div class="right">
+                <a
+                  href="#"
+                  class="link icon-only popup-open"
+                  data-popup=".popup-notifikasi"
+                >
+                  <i class="icon material-icons">notifications</i>
+                </a>
+              </div>
+            </div>
           </div>
-        </div>
 
-        <div class="tabs">
-          <div id="tab-absen" class="page tab-page-content tab tab-active">
-            <div class="navbar">
-              <div class="navbar-bg"></div>
-              <div class="navbar-inner">
-                <div class="title">Absensi BPM</div>
-                <div class="right">
-                  <a
-                    href="#"
-                    class="link icon-only popup-open"
-                    data-popup=".popup-notifikasi"
-                    ><i class="icon material-icons">notifications</i></a
-                  >
+          <div class="page-content">
+            <div class="block-title margin-top">Sedang Berlangsung</div>
+            <div class="card event-info-card shadow-lg margin-horizontal">
+              <div class="card-content card-content-padding">
+                <h2
+                  style="
+                    margin: 0;
+                    color: var(--f7-theme-color);
+                    font-size: 1.2rem;
+                  "
+                >
+                  Sidang Pleno I
+                </h2>
+                <div class="list media-list no-hairlines" style="margin: 0">
+                  <ul>
+                    <li>
+                      <div class="item-content" style="padding-left: 0">
+                        <div class="item-media">
+                          <i class="icon material-icons text-color-gray"
+                            >event</i
+                          >
+                        </div>
+                        <div class="item-inner">
+                          <div class="item-title">Hari Ini, 17 Nov 2025</div>
+                          <div class="item-subtitle">09:00 - Selesai</div>
+                        </div>
+                      </div>
+                    </li>
+                    <li>
+                      <div class="item-content" style="padding-left: 0">
+                        <div class="item-media">
+                          <i class="icon material-icons text-color-gray"
+                            >place</i
+                          >
+                        </div>
+                        <div class="item-inner">
+                          <div class="item-title">Ruang Sidang SC</div>
+                          <div
+                            class="item-subtitle"
+                            style="font-size: 11px; color: orange"
+                          >
+                            Radius Max: 5 Meter
+                          </div>
+                        </div>
+                      </div>
+                    </li>
+                  </ul>
                 </div>
               </div>
             </div>
-            <div class="page-content">
-              <div class="block-title" style="margin-top: 20px">
-                Sedang Berlangsung
-              </div>
-              <div class="card event-info-card shadow-lg">
-                <div class="card-content card-content-padding">
-                  <div
-                    class="display-flex justify-content-between align-items-start"
-                  >
-                    <h2 style="margin: 0; color: var(--f7-theme-color)">
-                      Sidang Pleno I
-                    </h2>
-                  </div>
-                  <div class="list media-list no-hairlines" style="margin: 0">
-                    <ul>
-                      <li>
-                        <div class="item-content" style="padding-left: 0">
-                          <div class="item-media">
-                            <i class="icon material-icons text-color-gray"
-                              >event</i
-                            >
-                          </div>
-                          <div class="item-inner">
-                            <div class="item-title">Hari Ini, 17 Nov 2025</div>
-                            <div class="item-subtitle">09:00 - Selesai</div>
-                          </div>
-                        </div>
-                      </li>
-                      <li>
-                        <div class="item-content" style="padding-left: 0">
-                          <div class="item-media">
-                            <i class="icon material-icons text-color-gray"
-                              >place</i
-                            >
-                          </div>
-                          <div class="item-inner">
-                            <div class="item-title">Ruang Sidang SC</div>
-                            <div class="item-subtitle">Radius Max: 5 Meter</div>
-                          </div>
-                        </div>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
 
-              <div class="block-title">Lakukan Absensi</div>
+            <div class="block-title">Metode Absensi</div>
               <div class="row margin-horizontal gap-2">
                 <div class="col-100 margin-bottom">
                   <button
@@ -186,19 +143,10 @@
                     style="background: #000; height: 60px"
                   >
                     <i class="icon material-icons margin-right">qr_code_2</i>
-                    Pindai QR Code
+                    Scan QR Code
                   </button>
                 </div>
-                <div class="col-100 margin-bottom">
-                  <button
-                    class="button button-large button-fill"
-                    onclick="cekGPS()"
-                    style="background: var(--f7-theme-color); height: 60px"
-                  >
-                    <i class="icon material-icons margin-right">my_location</i>
-                    Absensi GPS
-                  </button>
-                </div>
+
                 <div class="col-100 margin-bottom">
                   <button
                     class="button button-large button-fill popup-open"
@@ -212,221 +160,130 @@
               </div>
             </div>
           </div>
-
-          <div id="tab-kegiatan" class="page tab-page-content tab">
-            <div class="navbar">
-              <div class="navbar-bg"></div>
-              <div class="navbar-inner">
-                <div class="title">Jadwal Kegiatan</div>
-              </div>
-            </div>
-            <div class="page-content">
-              <form class="searchbar">
-                <div class="searchbar-inner">
-                  <div class="searchbar-input-wrap">
-                    <input type="search" placeholder="Cari kegiatan..." /><i
-                      class="searchbar-icon"
-                    ></i
-                    ><span class="input-clear-button"></span>
-                  </div>
-                  <span class="searchbar-disable-button">Batal</span>
-                </div>
-              </form>
-              <div class="block-title">Bulan Ini</div>
-              <div class="card activity-card">
-                <div class="card-content">
-                  <div class="list media-list no-hairlines">
-                    <ul>
-                      <li>
-                        <a href="#" class="item-link item-content"
-                          ><div class="item-media">
-                            <div class="activity-date">
-                              <span style="font-size: 12px; display: block"
-                                >NOV</span
-                              ><span style="font-size: 18px; font-weight: bold"
-                                >25</span
-                              >
-                            </div>
-                          </div>
-                          <div class="item-inner">
-                            <div class="item-title-row">
-                              <div class="item-title font-bold">
-                                Rapat Dengar Pendapat
-                              </div>
-                              <div class="item-after">
-                                <span
-                                  class="badge color-yellow text-color-black"
-                                  >Akan Datang</span
-                                >
-                              </div>
-                            </div>
-                            <div class="item-subtitle text-color-gray">
-                              SC Lantai 2 • 14:00 WIB
-                            </div>
-                          </div></a
-                        >
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-              <div class="card activity-card">
-                <div class="card-content">
-                  <div class="list media-list no-hairlines">
-                    <ul>
-                      <li>
-                        <a href="#" class="item-link item-content"
-                          ><div class="item-media">
-                            <div class="activity-date">
-                              <span style="font-size: 12px; display: block"
-                                >NOV</span
-                              ><span style="font-size: 18px; font-weight: bold"
-                                >17</span
-                              >
-                            </div>
-                          </div>
-                          <div class="item-inner">
-                            <div class="item-title-row">
-                              <div class="item-title font-bold">
-                                Sidang Pleno I
-                              </div>
-                              <div class="item-after">
-                                <span class="badge color-green"
-                                  >Berlangsung</span
-                                >
-                              </div>
-                            </div>
-                            <div class="item-subtitle text-color-gray">
-                              Ruang Sidang • 09:00 WIB
-                            </div>
-                          </div></a
-                        >
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div id="tab-riwayat" class="page tab-page-content tab">
-            <div class="navbar">
-              <div class="navbar-bg"></div>
-              <div class="navbar-inner">
-                <div class="title">Riwayat Kehadiran</div>
-              </div>
-            </div>
-            <div class="page-content">
-              <div class="block margin-top">
-                <div class="card card-outline text-align-center">
-                  <div class="card-content card-content-padding">
-                    <div
-                      class="display-flex justify-content-between align-items-center margin-bottom"
-                    >
-                      <span>Persentase Kehadiran</span
-                      ><span class="font-bold text-color-green">100%</span>
-                    </div>
-                    <div
-                      class="progressbar color-green"
-                      data-progress="100"
-                      style="height: 8px; border-radius: 4px"
-                    >
-                      <span style="transform: translate3d(0, 0px, 0px)"></span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="block-title">Log Aktivitas</div>
-              <div class="list media-list inset">
-                <ul>
-                  <li>
-                    <div class="item-content">
-                      <div class="item-inner">
-                        <div class="item-title-row">
-                          <div class="item-title">Rapat Komisi</div>
-                          <div class="item-after">
-                            <span class="badge color-green">Hadir</span>
-                          </div>
-                        </div>
-                        <div class="item-subtitle">05 Nov • via GPS</div>
-                      </div>
-                    </div>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-
-          <div id="tab-profil" class="page tab-page-content tab">
-            <div class="navbar">
-              <div class="navbar-bg"></div>
-              <div class="navbar-inner">
-                <div class="title">Profil Saya</div>
-              </div>
-            </div>
-            <div class="page-content">
-              <div class="profile-header">
-                <div class="profile-img">
-                  <i
-                    class="icon material-icons"
-                    style="font-size: 60px; color: #666"
-                    >person</i
+                <div class="col-50">
+                  <button
+                    class="button button-fill popup-open ripple display-flex flex-direction-column justify-content-center align-items-center shadow-lg"
+                    data-popup=".popup-selfie"
+                    style="
+                      height: 110px;
+                      border-radius: 16px;
+                      background: linear-gradient(
+                        135deg,
+                        #e91e63 0%,
+                        #ff4081 100%
+                      );
+                      width: 100%;
+                    "
                   >
+                    <i
+                      class="icon material-icons margin-bottom-half"
+                      style="font-size: 32px; color: #fff"
+                      >camera_front</i
+                    >
+                    <span style="font-size: 13px; font-weight: 600"
+                      >Selfie</span
+                    >
+                  </button>
                 </div>
-                <h2 style="margin: 0; font-size: 22px">Emir Dafanka Ibrohim</h2>
-                <p class="text-color-gray" style="margin: 5px 0">
-                  NIM: 230414028
-                </p>
-                <div class="chip color-blue margin-top-half">
-                  <div class="chip-label">Anggota Aktif</div>
-                </div>
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-              <div class="list inset margin-top">
-                <ul>
-                  <li>
-                    <a href="#" class="item-link item-content">
-                      <div class="item-media">
-                        <i class="icon material-icons color-blue"
-                          >account_box</i
-                        >
-                      </div>
-                      <div class="item-inner">
-                        <div class="item-title">Edit Profil</div>
-                      </div>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#" class="item-link item-content">
-                      <div class="item-media">
-                        <i class="icon material-icons color-orange">lock</i>
-                      </div>
-                      <div class="item-inner">
-                        <div class="item-title">Ganti Kata Sandi</div>
-                      </div>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#" class="item-link item-content">
-                      <div class="item-media">
-                        <i class="icon material-icons color-gray">help</i>
-                      </div>
-                      <div class="item-inner">
-                        <div class="item-title">Bantuan & Laporan</div>
-                      </div>
-                    </a>
-                  </li>
-                </ul>
+    <div class="popup popup-qr">
+      <div class="view">
+        <div class="page bg-color-black">
+          <div class="navbar navbar-transparent">
+            <div class="navbar-inner">
+              <div class="right">
+                <a class="link popup-close text-color-white" href="#">Tutup</a>
               </div>
+            </div>
+          </div>
+          <div
+            class="page-content display-flex flex-direction-column justify-content-center align-items-center"
+          >
+            <h3 class="text-color-white">Scan QR Kegiatan</h3>
+            <div
+              id="reader"
+              style="
+                width: 300px;
+                height: 300px;
+                background: #fff;
+                margin: 20px 0;
+              "
+            ></div>
+            <p class="text-color-white text-align-center opacity-70">
+              Arahkan kamera ke QR Code<br />yang disediakan panitia.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
 
-              <div class="block margin-top">
-                <button class="button button-large button-outline color-red">
-                  Logout
-                </button>
-                <p class="text-align-center text-color-gray size-12 margin-top">
-                  Versi Aplikasi 1.0.0
-                </p>
+    <div class="popup popup-selfie">
+      <div class="view">
+        <div class="page bg-color-black">
+          <div class="navbar navbar-transparent">
+            <div class="navbar-inner">
+              <div class="title text-color-white">Ambil Selfie</div>
+              <div class="right">
+                <a class="link popup-close text-color-white" href="#">Batal</a>
               </div>
+            </div>
+          </div>
+          <div class="page-content display-flex flex-direction-column">
+            <div
+              style="
+                flex: 1;
+                position: relative;
+                overflow: hidden;
+                background: #000;
+              "
+            >
+              <video id="selfie-video" autoplay playsinline></video>
+              <canvas id="selfie-canvas" style="display: none"></canvas>
+              <img id="selfie-result" src="" />
+            </div>
+
+            <div
+              style="
+                height: 120px;
+                background: #000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 20px;
+              "
+            >
+              <button
+                class="button button-fill color-white text-color-black ripple"
+                id="btn-snap"
+                onclick="takeSnapshot()"
+                style="width: 70px; height: 70px; border-radius: 50%"
+              >
+                <i class="icon material-icons">camera_alt</i>
+              </button>
+
+              <button
+                class="button button-fill color-green button-large button-round"
+                id="btn-save-selfie"
+                onclick="simpanSelfie()"
+                style="display: none; min-width: 120px"
+              >
+                <i class="icon material-icons margin-right">send</i> Kirim
+              </button>
+
+              <button
+                class="button button-outline color-white button-large button-round"
+                id="btn-retake"
+                onclick="resetSelfieCamera()"
+                style="display: none"
+              >
+                Ulangi
+              </button>
             </div>
           </div>
         </div>
@@ -446,102 +303,13 @@
             </div>
           </div>
           <div class="page-content">
-            <div class="list media-list">
-              <ul>
-                <li>
-                  <a href="#" class="item-link item-content"
-                    ><div class="item-media">
-                      <i class="icon material-icons text-color-blue">info</i>
-                    </div>
-                    <div class="item-inner">
-                      <div class="item-title-row">
-                        <div class="item-title">Undangan Sidang</div>
-                        <div class="item-after">2j</div>
-                      </div>
-                      <div class="item-text">Diharapkan hadir tepat waktu.</div>
-                    </div></a
-                  >
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="popup popup-qr">
-      <div class="view">
-        <div class="page bg-color-black">
-          <div class="navbar navbar-transparent">
-            <div class="navbar-inner">
-              <div class="right">
-                <a class="link popup-close text-color-white" href="#">Tutup</a>
-              </div>
-            </div>
-          </div>
-          <div
-            class="page-content display-flex flex-direction-column justify-content-center align-items-center"
-          >
-            <div class="scan-area"><div class="scan-line"></div></div>
-            <p class="text-color-white margin-top text-align-center">
-              Arahkan kamera ke QR Code
-            </p>
-            <button
-              class="button button-fill color-green margin-top"
-              onclick="simulasiSukses('QR')"
-            >
-              Simulasi Scan
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="popup popup-selfie">
-      <div class="view">
-        <div class="page bg-color-black">
-          <div class="navbar navbar-transparent">
-            <div class="navbar-inner">
-              <div class="title text-color-white">Ambil Selfie</div>
-              <div class="right">
-                <a class="link popup-close text-color-white" href="#">Batal</a>
-              </div>
-            </div>
-          </div>
-          <div class="page-content display-flex flex-direction-column">
-            <div
-              style="
-                flex: 1;
-                background: #333;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-              "
-            >
+            <div class="block text-align-center text-color-gray margin-top">
               <i
-                class="icon material-icons text-color-gray"
-                style="font-size: 64px"
-                >face</i
+                class="icon material-icons"
+                style="font-size: 48px; opacity: 0.5"
+                >notifications_off</i
               >
-            </div>
-            <div
-              style="
-                height: 100px;
-                background: #000;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-              "
-            >
-              <a
-                href="#"
-                onclick="simulasiSukses('Selfie')"
-                style="
-                  width: 70px;
-                  height: 70px;
-                  background: #fff;
-                  border-radius: 50%;
-                  border: 4px solid #ccc;
-                "
-              ></a>
+              <p>Tidak ada notifikasi baru.</p>
             </div>
           </div>
         </div>
@@ -549,54 +317,148 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/framework7@8/framework7-bundle.min.js"></script>
+
     <script>
+      // Init App
       var app = new Framework7({
         el: "#app",
         name: "BPM Absen",
         id: "com.bpm.absen",
-        material: true,
+        theme: "md",
       });
-      function cekGPS() {
-        app.dialog.preloader("Mendeteksi Lokasi...");
-        setTimeout(function () {
-          app.dialog.close();
-          var dalamRadius = Math.random() > 0.3;
-          if (dalamRadius) {
-            app.dialog.alert(
-              "Lokasi Terverifikasi: Dalam Radius ",
-              "Berhasil",
-              function () {
-                notifikasiStatus("Berhasil", "Absensi GPS tercatat.");
-              }
-            );
-          } else {
-            app.dialog.alert(
-              "Gagal! Posisi Anda di luar radius kegiatan.",
-              "Peringatan "
-            );
-          }
-        }, 1500);
+
+      var $$ = Dom7;
+      var html5QrcodeScanner = null;
+      var selfieStream = null;
+
+      // --- LOGIKA SCAN QR ---
+      $$(document).on("popup:open", ".popup-qr", function () {
+        startQrScanner();
+      });
+
+      $$(document).on("popup:close", ".popup-qr", function () {
+        stopQrScanner();
+      });
+
+      function startQrScanner() {
+        if (typeof Html5QrcodeScanner === "undefined") {
+          app.dialog.alert("Gagal memuat library QR. Cek koneksi internet.");
+          return;
+        }
+        html5QrcodeScanner = new Html5QrcodeScanner(
+          "reader",
+          { fps: 10, qrbox: { width: 250, height: 250 } },
+          /* verbose= */ false
+        );
+        html5QrcodeScanner.render(onScanSuccess, onScanFailure);
       }
-      function simulasiSukses(tipe) {
-        app.popup.close();
-        app.dialog.preloader("Memproses Data...");
+
+      function onScanSuccess(decodedText, decodedResult) {
+        stopQrScanner();
+        app.popup.close(".popup-qr");
+
+        app.dialog.preloader("Verifikasi Data...");
         setTimeout(function () {
           app.dialog.close();
-          notifikasiStatus(
-            "Berhasil",
-            "Absensi " + tipe + " telah diverifikasi."
+          app.dialog.alert(
+            `Absensi Berhasil!<br>Kode: <b>${decodedText}</b>`,
+            "Sukses"
           );
         }, 1000);
       }
-      function notifikasiStatus(judul, pesan) {
-        app.toast
-          .create({
-            text: judul + ": " + pesan,
-            position: "bottom",
-            closeTimeout: 3000,
-            cssClass: "bg-color-green",
-          })
-          .open();
+
+      function onScanFailure(error) {}
+
+      function stopQrScanner() {
+        if (html5QrcodeScanner) {
+          html5QrcodeScanner.clear().catch((e) => console.error(e));
+          html5QrcodeScanner = null;
+        }
+      }
+
+      // --- LOGIKA SELFIE ---
+      $$(document).on("popup:open", ".popup-selfie", function () {
+        initSelfieCamera();
+      });
+
+      $$(document).on("popup:close", ".popup-selfie", function () {
+        stopSelfieStream();
+        resetSelfieUI();
+      });
+
+      function initSelfieCamera() {
+        var video = document.getElementById("selfie-video");
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+          navigator.mediaDevices
+            .getUserMedia({ video: { facingMode: "user" } })
+            .then(function (stream) {
+              selfieStream = stream;
+              video.srcObject = stream;
+              video.play();
+            })
+            .catch(function (err) {
+              app.dialog.alert("Gagal akses kamera: " + err.message);
+            });
+        }
+      }
+
+      function stopSelfieStream() {
+        if (selfieStream) {
+          selfieStream.getTracks().forEach((track) => track.stop());
+          selfieStream = null;
+        }
+      }
+
+      function takeSnapshot() {
+        var video = document.getElementById("selfie-video");
+        var canvas = document.getElementById("selfie-canvas");
+        var img = document.getElementById("selfie-result");
+
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        var context = canvas.getContext("2d");
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        var dataURL = canvas.toDataURL("image/png");
+        img.src = dataURL;
+
+        $$(video).hide();
+        $$(img).show();
+        $$("#btn-snap").hide();
+        $$("#btn-save-selfie").show();
+        $$("#btn-retake").show();
+      }
+
+      function resetSelfieCamera() {
+        var video = document.getElementById("selfie-video");
+        var img = document.getElementById("selfie-result");
+
+        $$(video).show();
+        $$(img).hide();
+        $$("#btn-snap").show();
+        $$("#btn-save-selfie").hide();
+        $$("#btn-retake").hide();
+      }
+
+      function resetSelfieUI() {
+        resetSelfieCamera();
+        document.getElementById("selfie-result").src = "";
+      }
+
+      function simpanSelfie() {
+        app.popup.close(".popup-selfie");
+        app.dialog.preloader("Mengirim Foto...");
+        setTimeout(function () {
+          app.dialog.close();
+          app.toast
+            .create({
+              text: "Foto Selfie Berhasil Diunggah!",
+              position: "bottom",
+              closeTimeout: 3000,
+              cssClass: "bg-color-green",
+            })
+            .open();
+        }, 1500);
       }
     </script>
   </body>
