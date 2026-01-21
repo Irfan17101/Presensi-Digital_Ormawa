@@ -4,17 +4,21 @@
     <meta charset="utf-8" />
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
     />
-    <title>HMSI Smart Attendance</title>
+    <title>Presensi QR</title>
 
     <link
       rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/framework7@8/framework7-bundle.min.css"
+      href="https://unpkg.com/framework7/framework7-bundle.min.css"
     />
     <link
       rel="stylesheet"
       href="https://fonts.googleapis.com/icon?family=Material+Icons"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/framework7-icons/css/framework7-icons.css"
     />
 
     <script
@@ -22,163 +26,209 @@
       type="text/javascript"
     ></script>
 
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="../../js/firebase-config.js"></script>
+
     <style>
       :root {
-        --f7-theme-color: #4a47a3; /* Warna Tema HMSI */
-        --f7-page-bg-color: #f8f9fa;
+        --primary-color: #4a47a3;
+        --secondary-color: #706fd3;
+        --bg-color: #f7f9fc;
       }
 
-      /* Card Styles */
-      .event-info-card {
-        border-left: 5px solid var(--f7-theme-color);
-        border-radius: 12px;
-        background: #fff;
+      body {
+        background-color: var(--bg-color);
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+          sans-serif;
       }
 
-      /* Camera Container Styles */
+      .navbar-bg {
+        background: linear-gradient(
+          135deg,
+          var(--primary-color),
+          var(--secondary-color)
+        );
+      }
+      .navbar .title,
+      .navbar .link {
+        color: white;
+      }
+
+      /* --- Event Card Style --- */
+      .event-card {
+        background: white;
+        border-radius: 24px;
+        padding: 30px 20px;
+        box-shadow: 0 10px 30px rgba(74, 71, 163, 0.08);
+        margin: 20px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      /* Hiasan background card */
+      .event-card::before {
+        content: "";
+        position: absolute;
+        top: -30px;
+        right: -30px;
+        width: 100px;
+        height: 100px;
+        background: radial-gradient(
+          circle,
+          rgba(112, 111, 211, 0.1) 0%,
+          rgba(255, 255, 255, 0) 70%
+        );
+        border-radius: 50%;
+      }
+
+      .event-icon {
+        width: 60px;
+        height: 60px;
+        background: #f0f0ff;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 15px;
+        color: var(--primary-color);
+      }
+
+      .event-title {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #2d3436;
+        margin: 0 0 5px;
+      }
+
+      .event-time {
+        font-size: 0.95rem;
+        color: #636e72;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+      }
+
+      .status-chip {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 20px;
+        background: #e3fcf0;
+        color: #00b894;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+      }
+
+      /* --- Scan Button --- */
+      .scan-container {
+        padding: 0 20px;
+        margin-top: 30px;
+      }
+
+      .btn-scan {
+        background: linear-gradient(
+          135deg,
+          var(--primary-color),
+          var(--secondary-color)
+        );
+        height: 60px;
+        border-radius: 18px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        box-shadow: 0 10px 25px rgba(74, 71, 163, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        color: white;
+        width: 100%;
+        border: none;
+        transition: transform 0.2s;
+        cursor: pointer;
+      }
+      .btn-scan:active {
+        transform: scale(0.97);
+      }
+
+      .instruction-text {
+        text-align: center;
+        margin-top: 20px;
+        color: #b2bec3;
+        font-size: 0.85rem;
+      }
+
+      /* --- Scanner Popup Styles --- */
       #reader {
         width: 100%;
-        border-radius: 12px;
+        border-radius: 20px;
         overflow: hidden;
         background: #000;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
       }
-
-      #selfie-video,
-      #selfie-result {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transform: scaleX(-1);
-      }
-
-      #selfie-result {
-        transform: none;
+      #reader__scan_region img {
         display: none;
       }
+      #reader__dashboard_section_csr button {
+        display: none;
+      } /* Sembunyikan tombol bawaan library */
     </style>
   </head>
 
   <body>
     <div id="app">
-      <div class="view view-main view-init" data-url="/">
-        <div class="page" data-name="presensi-hmsi">
+      <div class="view view-main">
+        <div class="page" data-name="presensi-qr">
           <div class="navbar">
             <div class="navbar-bg"></div>
             <div class="navbar-inner">
               <div class="left">
-                <a href="../dashboard/dashboard-anggota.html" class="link external">
+                <a
+                  href="../dashboard/dashboard-anggota.html"
+                  class="link external text-color-white"
+                >
                   <i class="icon material-icons">arrow_back</i>
                 </a>
               </div>
-              <div class="title">Absensi HMSI</div>
-              <div class="right">
-                <a
-                  href="#"
-                  class="link icon-only popup-open"
-                  data-popup=".popup-notifikasi"
-                >
-                  <i class="icon material-icons">notifications</i>
-                </a>
-              </div>
+              <div class="title text-color-white">Absensi QR Code</div>
             </div>
           </div>
 
           <div class="page-content">
-            <div class="block-title margin-top">Sedang Berlangsung</div>
-            <div class="card event-info-card shadow-lg margin-horizontal">
-              <div class="card-content card-content-padding">
-                <h2
-                  style="
-                    margin: 0;
-                    color: var(--f7-theme-color);
-                    font-size: 1.2rem;
-                  "
+            <div class="event-card">
+              <div class="event-icon">
+                <i class="f7-icons" style="font-size: 32px">calendar_today</i>
+              </div>
+              <h2 class="event-title" id="namaKegiatan">Memuat Kegiatan...</h2>
+              <div class="event-time">
+                <i class="f7-icons" style="font-size: 16px">clock</i>
+                <span id="waktuKegiatan">-</span>
+              </div>
+              <div class="status-chip">
+                <i class="f7-icons" style="font-size: 10px; margin-right: 4px"
+                  >circle_fill</i
                 >
-                  Seminar UI/UX Design
-                </h2>
-                <div class="list media-list no-hairlines" style="margin: 0">
-                  <ul>
-                    <li>
-                      <div class="item-content" style="padding-left: 0">
-                        <div class="item-media">
-                          <i class="icon material-icons text-color-gray"
-                            >event</i
-                          >
-                        </div>
-                        <div class="item-inner">
-                          <div class="item-title">Hari Ini, 17 Nov 2025</div>
-                          <div class="item-subtitle">09:00 - 11:00 WIB</div>
-                        </div>
-                      </div>
-                    </li>
-                    <li>
-                      <div class="item-content" style="padding-left: 0">
-                        <div class="item-media">
-                          <i class="icon material-icons text-color-gray"
-                            >place</i
-                          >
-                        </div>
-                        <div class="item-inner">
-                          <div class="item-title">Lab Multimedia</div>
-                        </div>
-                      </div>
-                    </li>
-                  </ul>
-                </div>
+                Sesi Aktif
               </div>
             </div>
 
-            <div class="block-title">Metode Absensi</div>
-              <div class="row margin-horizontal gap-2">
-                <div class="col-100 margin-bottom">
-                  <button
-                    class="button button-large button-fill popup-open"
-                    data-popup=".popup-qr"
-                    style="background: #000; height: 60px"
-                  >
-                    <i class="icon material-icons margin-right">qr_code_2</i>
-                    Scan QR Code
-                  </button>
-                </div>
+            <div class="scan-container">
+              <button class="btn-scan popup-open" data-popup=".popup-qr">
+                <i class="material-icons">qr_code_scanner</i>
+                MULAI SCAN
+              </button>
 
-                <div class="col-100 margin-bottom">
-                  <button
-                    class="button button-large button-fill popup-open"
-                    data-popup=".popup-selfie"
-                    style="background: #e91e63; height: 60px"
-                  >
-                    <i class="icon material-icons margin-right">camera_front</i>
-                    Verifikasi Selfie
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-                <div class="col-50">
-                  <button
-                    class="button button-fill popup-open ripple display-flex flex-direction-column justify-content-center align-items-center shadow-lg"
-                    data-popup=".popup-selfie"
-                    style="
-                      height: 110px;
-                      border-radius: 16px;
-                      background: linear-gradient(
-                        135deg,
-                        #e91e63 0%,
-                        #ff4081 100%
-                      );
-                      width: 100%;
-                    "
-                  >
-                    <i
-                      class="icon material-icons margin-bottom-half"
-                      style="font-size: 32px; color: #fff"
-                      >camera_front</i
-                    >
-                    <span style="font-size: 13px; font-weight: 600"
-                      >Selfie</span
-                    >
-                  </button>
-                </div>
+              <div class="instruction-text">
+                <p>
+                  Pastikan Anda berada di lokasi kegiatan.<br />Arahkan kamera
+                  ke kode QR Admin.
+                </p>
               </div>
             </div>
           </div>
@@ -192,267 +242,223 @@
           <div class="navbar navbar-transparent">
             <div class="navbar-inner">
               <div class="right">
-                <a class="link popup-close text-color-white" href="#">Tutup</a>
+                <a
+                  class="link popup-close text-color-white"
+                  href="#"
+                  onclick="stopScanner()"
+                >
+                  <i class="f7-icons">multiply_circle_fill</i>
+                </a>
               </div>
             </div>
           </div>
           <div
-            class="page-content display-flex flex-direction-column justify-content-center align-items-center"
+            class="page-content display-flex flex-direction-column justify-content-center"
           >
-            <h3 class="text-color-white">Scan QR Kegiatan</h3>
-            <div
-              id="reader"
-              style="
-                width: 300px;
-                height: 300px;
-                background: #fff;
-                margin: 20px 0;
-              "
-            ></div>
-            <p class="text-color-white text-align-center opacity-70">
-              Arahkan kamera ke QR Code<br />yang disediakan panitia.
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="popup popup-selfie">
-      <div class="view">
-        <div class="page bg-color-black">
-          <div class="navbar navbar-transparent">
-            <div class="navbar-inner">
-              <div class="title text-color-white">Ambil Selfie</div>
-              <div class="right">
-                <a class="link popup-close text-color-white" href="#">Batal</a>
-              </div>
+            <div class="block text-align-center">
+              <h2 class="text-color-white" style="font-weight: 700">
+                Scanning...
+              </h2>
+              <p class="text-color-gray">
+                Posisikan QR Code di dalam kotak area.
+              </p>
             </div>
-          </div>
-          <div class="page-content display-flex flex-direction-column">
+
+            <div class="block">
+              <div id="reader"></div>
+            </div>
+
             <div
-              style="
-                flex: 1;
-                position: relative;
-                overflow: hidden;
-                background: #000;
-              "
+              id="scan-feedback"
+              class="block text-align-center text-color-white"
+              style="display: none"
             >
-              <video id="selfie-video" autoplay playsinline></video>
-              <canvas id="selfie-canvas" style="display: none"></canvas>
-              <img id="selfie-result" src="" />
-            </div>
-
-            <div
-              style="
-                height: 120px;
-                background: #000;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 20px;
-              "
-            >
-              <button
-                class="button button-fill color-white text-color-black ripple"
-                id="btn-snap"
-                onclick="takeSnapshot()"
-                style="width: 70px; height: 70px; border-radius: 50%"
+              <div
+                style="
+                  background: rgba(255, 255, 255, 0.2);
+                  width: 50px;
+                  height: 50px;
+                  border-radius: 50%;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  margin: 0 auto 10px;
+                "
               >
-                <i class="icon material-icons">camera_alt</i>
-              </button>
-
-              <button
-                class="button button-fill color-green button-large button-round"
-                id="btn-save-selfie"
-                onclick="simpanSelfie()"
-                style="display: none; min-width: 120px"
-              >
-                <i class="icon material-icons margin-right">send</i> Kirim
-              </button>
-
-              <button
-                class="button button-outline color-white button-large button-round"
-                id="btn-retake"
-                onclick="resetSelfieCamera()"
-                style="display: none"
-              >
-                Ulangi
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="popup popup-notifikasi">
-      <div class="view">
-        <div class="page">
-          <div class="navbar">
-            <div class="navbar-bg"></div>
-            <div class="navbar-inner">
-              <div class="title">Notifikasi</div>
-              <div class="right">
-                <a class="link popup-close" href="#">Tutup</a>
+                <span class="preloader color-white"></span>
               </div>
-            </div>
-          </div>
-          <div class="page-content">
-            <div class="block text-align-center text-color-gray margin-top">
-              <i
-                class="icon material-icons"
-                style="font-size: 48px; opacity: 0.5"
-                >notifications_off</i
-              >
-              <p>Tidak ada notifikasi baru.</p>
+              <p>Memverifikasi Data...</p>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/framework7@8/framework7-bundle.min.js"></script>
-
+    <script src="https://unpkg.com/framework7/framework7-bundle.min.js"></script>
     <script>
-      // Init App
-      var app = new Framework7({
-        el: "#app",
-        name: "HMSI Absen",
-        id: "com.hmsi.absen",
-        theme: "md",
-      });
-
+      var app = new Framework7({ el: "#app", theme: "ios" }); // Pakai tema iOS agar lebih clean
       var $$ = Dom7;
       var html5QrcodeScanner = null;
-      var selfieStream = null;
+      var activeEventName = "Presensi Harian";
 
-      // --- LOGIKA SCAN QR ---
-      $$(document).on("popup:open", ".popup-qr", function () {
-        startQrScanner();
-      });
+      // === 1. CEK LOGIN & LOAD DATA ===
+      const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+      if (!currentUser) {
+        window.location.href = "../auth/login.html";
+      }
 
-      $$(document).on("popup:close", ".popup-qr", function () {
-        stopQrScanner();
-      });
+      // Cek Event Hari Ini dari Firebase
+      document.addEventListener("DOMContentLoaded", () => {
+        if (window.firebase) {
+          const db = firebase.database();
+          const today = new Date().toISOString().split("T")[0];
 
-      function startQrScanner() {
-        if (typeof Html5QrcodeScanner === "undefined") {
-          app.dialog.alert("Gagal memuat library QR. Cek koneksi internet.");
-          return;
+          db.ref("kegiatan")
+            .orderByChild("tanggal")
+            .equalTo(today)
+            .limitToLast(1)
+            .once("value", (snap) => {
+              if (snap.exists()) {
+                const data = Object.values(snap.val())[0];
+                document.getElementById("namaKegiatan").textContent = data.nama;
+                document.getElementById("waktuKegiatan").textContent =
+                  data.waktu + " WIB";
+                activeEventName = data.nama;
+              } else {
+                document.getElementById("namaKegiatan").textContent =
+                  "Absensi Harian";
+                document.getElementById("waktuKegiatan").textContent =
+                  new Date().toLocaleDateString("id-ID", {
+                    weekday: "long",
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  });
+              }
+            });
         }
+      });
+
+      // === 2. LOGIKA SCANNER ===
+
+      $$(document).on("popup:opened", ".popup-qr", function () {
+        startScanner();
+      });
+
+      $$(document).on("popup:closed", ".popup-qr", function () {
+        stopScanner();
+      });
+
+      function startScanner() {
+        if (html5QrcodeScanner) return;
+
         html5QrcodeScanner = new Html5QrcodeScanner(
           "reader",
-          { fps: 10, qrbox: { width: 250, height: 250 } },
+          {
+            fps: 10,
+            qrbox: { width: 250, height: 250 },
+            aspectRatio: 1.0,
+            showTorchButtonIfSupported: true,
+          },
           /* verbose= */ false
         );
+
         html5QrcodeScanner.render(onScanSuccess, onScanFailure);
       }
 
-      function onScanSuccess(decodedText, decodedResult) {
-        stopQrScanner();
-        app.popup.close(".popup-qr");
-
-        app.dialog.preloader("Verifikasi Data...");
-        setTimeout(function () {
-          app.dialog.close();
-          app.dialog.alert(
-            `Absensi Berhasil!<br>Kode: <b>${decodedText}</b>`,
-            "Sukses"
-          );
-        }, 1000);
-      }
-
-      function onScanFailure(error) {}
-
-      function stopQrScanner() {
+      function stopScanner() {
         if (html5QrcodeScanner) {
-          html5QrcodeScanner.clear().catch((e) => console.error(e));
-          html5QrcodeScanner = null;
-        }
-      }
-
-      // --- LOGIKA SELFIE ---
-      $$(document).on("popup:open", ".popup-selfie", function () {
-        initSelfieCamera();
-      });
-
-      $$(document).on("popup:close", ".popup-selfie", function () {
-        stopSelfieStream();
-        resetSelfieUI();
-      });
-
-      function initSelfieCamera() {
-        var video = document.getElementById("selfie-video");
-        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-          navigator.mediaDevices
-            .getUserMedia({ video: { facingMode: "user" } })
-            .then(function (stream) {
-              selfieStream = stream;
-              video.srcObject = stream;
-              video.play();
+          html5QrcodeScanner
+            .clear()
+            .then(() => {
+              html5QrcodeScanner = null;
             })
-            .catch(function (err) {
-              app.dialog.alert("Gagal akses kamera: " + err.message);
-            });
+            .catch((err) => console.log("Stop error", err));
         }
       }
 
-      function stopSelfieStream() {
-        if (selfieStream) {
-          selfieStream.getTracks().forEach((track) => track.stop());
-          selfieStream = null;
+      // === 3. SAAT SCAN BERHASIL ===
+      function onScanSuccess(decodedText, decodedResult) {
+        stopScanner();
+        document.getElementById("scan-feedback").style.display = "block";
+
+        // Validasi Data QR
+        try {
+          let qrData = JSON.parse(decodedText);
+          const today = new Date().toISOString().split("T")[0];
+
+          if (qrData.tanggal !== today) {
+            app.dialog.alert(
+              "QR Code Kadaluarsa. Tanggal QR: " + qrData.tanggal,
+              "Gagal"
+            );
+            app.popup.close(".popup-qr");
+            document.getElementById("scan-feedback").style.display = "none";
+            return;
+          }
+        } catch (e) {
+          console.log("QR bukan JSON, lanjut proses manual...");
         }
+
+        // Kirim ke Firebase
+        kirimKehadiran();
       }
 
-      function takeSnapshot() {
-        var video = document.getElementById("selfie-video");
-        var canvas = document.getElementById("selfie-canvas");
-        var img = document.getElementById("selfie-result");
-
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        var context = canvas.getContext("2d");
-        context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-        var dataURL = canvas.toDataURL("image/png");
-        img.src = dataURL;
-
-        $$(video).hide();
-        $$(img).show();
-        $$("#btn-snap").hide();
-        $$("#btn-save-selfie").show();
-        $$("#btn-retake").show();
+      function onScanFailure(error) {
+        // Console log dimatikan agar tidak spam
       }
 
-      function resetSelfieCamera() {
-        var video = document.getElementById("selfie-video");
-        var img = document.getElementById("selfie-result");
+      function kirimKehadiran() {
+        if (!window.firebase) {
+          app.dialog.alert("Koneksi Database Gagal.");
+          return;
+        }
 
-        $$(video).show();
-        $$(img).hide();
-        $$("#btn-snap").show();
-        $$("#btn-save-selfie").hide();
-        $$("#btn-retake").hide();
-      }
+        const db = firebase.database();
+        const today = new Date().toISOString().split("T")[0];
+        const timeNow = new Date().toLocaleTimeString("id-ID", {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
 
-      function resetSelfieUI() {
-        resetSelfieCamera();
-        document.getElementById("selfie-result").src = "";
-      }
+        const dataPresensi = {
+          nama: currentUser.name,
+          nim: currentUser.nim || "-",
+          waktu: timeNow,
+          status: "Hadir",
+          kegiatan: activeEventName,
+          metode: "QR Code",
+        };
 
-      function simpanSelfie() {
-        app.popup.close(".popup-selfie");
-        app.dialog.preloader("Mengirim Foto...");
-        setTimeout(function () {
-          app.dialog.close();
-          app.toast
-            .create({
-              text: "Foto Selfie Berhasil Diunggah!",
-              position: "bottom",
-              closeTimeout: 3000,
-              cssClass: "bg-color-green",
-            })
-            .open();
-        }, 1500);
+        db.ref("absensi/" + today)
+          .push(dataPresensi)
+          .then(() => {
+            app.popup.close(".popup-qr");
+            if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+
+            app.dialog
+              .create({
+                title: "Absensi Berhasil!",
+                text: `<div style="text-align:center; margin-top:10px;">
+                      <i class="icon f7-icons text-color-green" style="font-size:50px">checkmark_circle_fill</i>
+                      <p>Kehadiran Anda telah tercatat pada ${timeNow}.</p>
+                     </div>`,
+                buttons: [
+                  {
+                    text: "Selesai",
+                    onClick: function () {
+                      window.location.href =
+                        "../dashboard/dashboard-anggota.html";
+                    },
+                  },
+                ],
+              })
+              .open();
+          })
+          .catch((error) => {
+            app.popup.close(".popup-qr");
+            app.dialog.alert("Gagal mengirim data: " + error.message);
+          });
       }
     </script>
   </body>

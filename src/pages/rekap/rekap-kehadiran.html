@@ -1,98 +1,311 @@
 <!DOCTYPE html>
-<html>
-<head>
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Rekap Izin</title>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+    />
+    <title>Rekap Kehadiran</title>
 
-<style>
-:root {
-    --primary: #6A0DAD;
-    --secondary: #A67B5B;
-    --darkbrown: #5A3E2B;
-    --bg: #F7F4F2;
-}
+    <link rel="stylesheet" href="https://unpkg.com/framework7/framework7-bundle.min.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/framework7-icons/css/framework7-icons.css">
 
-body { margin:0; background:var(--bg); font-family:Arial; }
-.app { max-width:480px; margin:auto; padding:16px; }
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    
+    <script src="../../js/firebase-config.js"></script>
 
-h2 { color:var(--darkbrown); }
+    <style>
+      :root {
+        --primary-color: #4a47a3;
+        --bg-color: #f5f5f7;
+      }
 
-.card {
-    background:white; padding:18px; border-radius:14px;
-    border-left:6px solid var(--secondary);
-    box-shadow:0 8px 20px rgba(0,0,0,0.07);
-}
+      /* --- PERBAIKAN SCROLL --- */
+      html, body, #app {
+        height: 100%;
+        width: 100%;
+        overflow: hidden; /* Mencegah scroll ganda di body */
+        position: relative;
+      }
 
-table { width:100%; border-collapse:collapse; }
+      body {
+        background-color: var(--bg-color);
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+      }
 
-th {
-    background:var(--primary); color:white; padding:10px; font-size:14px;
-}
+      /* Pastikan page-content bisa di-scroll */
+      .page-content {
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch;
+        height: 100%;
+        padding-bottom: 100px; /* Ruang ekstra di bawah agar tidak mentok */
+      }
 
-td {
-    padding:10px; border-bottom:1px solid #e6dcd0;
-    font-size:14px; color:var(--darkbrown);
-}
+      .navbar-bg {
+        background: linear-gradient(135deg, #2c3e50, var(--primary-color));
+      }
+      .navbar .title, .navbar .link { color: white; }
 
-.back { color:var(--primary); text-decoration:none; font-weight:bold; }
-</style>
+      /* Search Bar */
+      .search-wrapper {
+        padding: 16px;
+        background: white;
+        margin: 16px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        display: flex;
+        align-items: center;
+        position: sticky; /* Agar search bar tetap di atas saat scroll (opsional) */
+        top: 0;
+        z-index: 10;
+      }
+      .search-wrapper input {
+        border: none;
+        width: 100%;
+        outline: none;
+        font-size: 14px;
+        margin-left: 10px;
+        color: #333;
+      }
 
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-<script src="firebase-config.js"></script>
+      /* Data Table Custom */
+      .custom-table-card {
+        background: white;
+        margin: 0 16px 20px;
+        border-radius: 16px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        overflow: hidden;
+      }
+      .data-table {
+        width: 100%;
+        overflow-x: auto; /* Scroll horizontal jika tabel lebar */
+      }
+      .data-table table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .data-table th {
+        background: #f8f9fa;
+        color: #7f8c8d;
+        font-weight: 700;
+        font-size: 12px;
+        text-transform: uppercase;
+        padding: 12px;
+        text-align: left;
+      }
+      .data-table td {
+        padding: 12px;
+        border-bottom: 1px solid #f1f2f6;
+        font-size: 13px;
+        color: #2d3436;
+      }
+      .data-table tr:last-child td { border-bottom: none; }
 
-</head>
-<body>
+      /* Badges */
+      .badge-method {
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+      }
+      .badge-qr { background: #e3f2fd; color: #1976d2; }
+      .badge-selfie { background: #fce4ec; color: #c2185b; }
 
-<div class="app">
-    <h2>Rekap Izin / Ketidakhadiran</h2>
+      .date-col {
+        font-weight: 600;
+        color: var(--primary-color);
+        white-space: nowrap;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <div class="view view-main">
+        <div class="page">
+          
+          <div class="navbar">
+            <div class="navbar-bg"></div>
+            <div class="navbar-inner">
+              <div class="left">
+                <a href="#" onclick="goBack()" class="link icon-only">
+                  <i class="icon material-icons">arrow_back</i>
+                </a>
+              </div>
+              <div class="title">Rekap Kehadiran</div>
+              <div class="right">
+                <a href="#" onclick="loadData()" class="link icon-only">
+                  <i class="icon material-icons">refresh</i>
+                </a>
+              </div>
+            </div>
+          </div>
 
-    <div class="card">
-        <table>
-            <thead>
-                <tr>
-                    <th>Nama</th>
-                    <th>Keterangan</th>
-                    <th>Alasan</th>
-                    <th>Waktu</th>
-                </tr>
-            </thead>
-            <tbody id="data"></tbody>
-        </table>
+          <div class="page-content">
+            
+            <div class="block-title" style="display:flex; justify-content:space-between; margin: 20px 16px 10px;">
+              <span>Total Data</span>
+              <span class="badge color-blue" id="totalCount">0</span>
+            </div>
+
+            <div class="search-wrapper">
+              <i class="icon f7-icons text-color-gray" style="font-size: 20px">search</i>
+              <input type="text" id="searchInput" placeholder="Cari Nama, Tanggal, atau Kegiatan..." onkeyup="filterTable()">
+            </div>
+
+            <div class="custom-table-card">
+              <div class="data-table">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Tanggal</th>
+                      <th>Nama / NIM</th>
+                      <th>Metode</th>
+                      <th style="text-align: right;">Waktu</th>
+                    </tr>
+                  </thead>
+                  <tbody id="table-body">
+                    <tr>
+                      <td colspan="4" style="text-align: center; padding: 30px;">
+                        <span class="preloader color-multi"></span>
+                        <p style="color: #999; font-size: 12px; margin-top: 5px;">Mengambil data absensi...</p>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="fab fab-right-bottom color-green">
+              <a href="#" onclick="exportData()">
+                <i class="icon material-icons">file_download</i>
+              </a>
+            </div>
+            
+            <div style="height: 50px;"></div>
+
+          </div>
+        </div>
+      </div>
     </div>
 
-    <a class="back" href="../dashboard/dashboard-anggota.html">← Kembali ke Dashboard</a>
-</div>
+    <script src="https://unpkg.com/framework7/framework7-bundle.min.js"></script>
+    <script>
+      var app = new Framework7({ el: '#app', theme: 'ios' });
 
-<script>
-function load(){
-    let body = document.getElementById("data");
-    body.innerHTML = "<tr><td colspan='4'>Memuat...</td></tr>";
-
-    db.ref("izin").orderByChild("iso").on("value", snap => {
-        let data = snap.val();
-        body.innerHTML="";
-
-        if(!data){
-            body.innerHTML="<tr><td colspan='4'>Belum ada data</td></tr>";
-            return;
+      // === 1. NAVIGATION CHECK ===
+      function goBack() {
+        const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+        // Cek role untuk menentukan arah kembali
+        if(currentUser && currentUser.role === 'admin') {
+            window.location.href = '../dashboard/dashboard-admin.html';
+        } else {
+            window.location.href = '../dashboard/dashboard-anggota.html';
         }
+      }
 
-        let arr = Object.values(data).sort((a,b)=> new Date(b.iso)-new Date(a.iso));
+      // === 2. LOAD DATA ===
+      document.addEventListener('DOMContentLoaded', () => {
+         loadData();
+      });
 
-        arr.forEach(d=>{
-            body.innerHTML += `
-            <tr>
-                <td>${d.nama}</td>
-                <td>${d.keterangan}</td>
-                <td>${d.alasan}</td>
-                <td>${d.waktu}</td>
-            </tr>`;
+      function loadData() {
+        if (!window.firebase) return;
+        const db = firebase.database();
+        const tbody = document.getElementById("table-body");
+        const countBadge = document.getElementById("totalCount");
+
+        // Ambil data absensi
+        db.ref("absensi").on("value", (snapshot) => {
+          tbody.innerHTML = "";
+          
+          if (!snapshot.exists()) {
+             tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:20px; color:#999;">Belum ada riwayat absensi.</td></tr>`;
+             countBadge.textContent = "0";
+             return;
+          }
+
+          let flatData = [];
+          
+          // Flatten Data: absensi -> TANGGAL -> ID -> DATA
+          snapshot.forEach(dateSnap => {
+            const dateKey = dateSnap.key; 
+            dateSnap.forEach(itemSnap => {
+              const item = itemSnap.val();
+              item.tanggal = dateKey; 
+              flatData.push(item);
+            });
+          });
+
+          // Sort Descending (Terbaru di atas)
+          flatData.sort((a, b) => {
+             const dateA = new Date(a.tanggal + ' ' + a.waktu);
+             const dateB = new Date(b.tanggal + ' ' + b.waktu);
+             return dateB - dateA;
+          });
+
+          countBadge.textContent = flatData.length;
+
+          // Render
+          flatData.forEach(d => {
+            // Format Tanggal
+            const dateParts = d.tanggal.split("-");
+            const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+            const prettyDate = `${dateParts[2]} ${months[parseInt(dateParts[1])-1]}`;
+
+            let badgeClass = d.metode === 'Selfie' ? 'badge-selfie' : 'badge-qr';
+            let icon = d.metode === 'Selfie' ? 'camera_fill' : 'qrcode';
+
+            const row = `
+              <tr>
+                <td class="date-col">${prettyDate}</td>
+                <td>
+                  <div style="font-weight:600; color:#333;">${d.nama}</div>
+                  <div style="font-size:11px; color:#999;">${d.kegiatan || 'Umum'}</div>
+                </td>
+                <td>
+                  <span class="badge-method ${badgeClass}">
+                    <i class="f7-icons" style="font-size:10px">${icon}</i> ${d.metode}
+                  </span>
+                </td>
+                <td style="text-align:right; font-weight:600; color:#555;">
+                  ${d.waktu}
+                </td>
+              </tr>
+            `;
+            tbody.insertAdjacentHTML('beforeend', row);
+          });
         });
-    });
-}
-load();
-</script>
+      }
 
-</body>
+      // === 3. FILTER SEARCH ===
+      function filterTable() {
+        const input = document.getElementById("searchInput");
+        const filter = input.value.toUpperCase();
+        const table = document.querySelector("table");
+        const tr = table.getElementsByTagName("tr");
+
+        // Loop row tabel (mulai index 1 untuk skip header)
+        for (let i = 1; i < tr.length; i++) {
+          const rowText = tr[i].textContent || tr[i].innerText;
+          if (rowText.toUpperCase().indexOf(filter) > -1) {
+            tr[i].style.display = "";
+          } else {
+            tr[i].style.display = "none";
+          }
+        }
+      }
+
+      function exportData() {
+        app.dialog.alert('Fitur Export Excel akan segera tersedia.', 'Info');
+      }
+    </script>
+  </body>
 </html>

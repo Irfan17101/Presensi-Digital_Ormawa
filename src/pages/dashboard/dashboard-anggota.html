@@ -16,274 +16,278 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/icon?family=Material+Icons"
     />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/framework7-icons/css/framework7-icons.css"
+    />
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="../../js/firebase-config.js"></script>
 
     <style>
-      /* --- CSS GLOBAL --- */
+      /* --- GLOBAL VARIABLES --- */
       :root {
-        --primary-gradient: linear-gradient(135deg, #3b0eac, #5d2ee6);
-        --bg-color: #f5f5f7;
-        --toolbar-height: 65px; /* Tinggi toolbar fix */
+        --primary-color: #4a47a3;
+        --secondary-color: #706fd3;
+        --accent-color: #ff5252;
+        --bg-color: #f7f9fc;
+        --card-bg: #ffffff;
+        --text-dark: #2d3436;
+        --text-light: #636e72;
       }
 
       body {
-        background: var(--bg-color);
-        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+        background-color: var(--bg-color);
+        font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, Roboto,
           sans-serif;
       }
 
-      /* --- HEADER USER --- */
-      .user-header {
-        background: var(--primary-gradient);
+      /* --- HEADER SECTION --- */
+      .dashboard-header {
+        background: linear-gradient(
+          135deg,
+          var(--primary-color),
+          var(--secondary-color)
+        );
+        padding: 60px 24px 80px;
+        border-radius: 0 0 35px 35px;
         color: white;
-        padding: 50px 20px 40px 20px;
-        border-radius: 0 0 30px 30px;
-        box-shadow: 0 10px 20px rgba(59, 14, 172, 0.25);
         position: relative;
-        z-index: 1;
+        box-shadow: 0 10px 30px rgba(74, 71, 163, 0.3);
       }
 
-      .header-content {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-      }
-
-      .avatar-container {
-        width: 60px;
-        height: 60px;
-        background: rgba(255, 255, 255, 0.2);
-        backdrop-filter: blur(5px);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: 2px solid rgba(255, 255, 255, 0.4);
-      }
-
-      .user-info h1 {
-        font-size: 1.3rem;
-        margin: 0;
-        font-weight: 700;
-      }
-      .user-info p {
-        margin: 2px 0 0;
-        opacity: 0.9;
-        font-size: 0.85rem;
-      }
-
-      /* --- KONTEN WRAPPER --- */
-      .content-wrapper {
-        padding: 0 20px;
-        padding-bottom: 100px; /* Jarak bawah agar tidak ketutup toolbar */
-        margin-top: -20px;
-        position: relative;
-        z-index: 2;
-      }
-
-      /* --- CARD STYLES --- */
-      .activity-card-dashboard {
-        background: white;
-        padding: 15px 20px;
-        border-radius: 16px;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
-        border-left: 5px solid #2ecc71;
+      .header-top {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 25px;
       }
-      .ac-content h3 {
-        font-size: 1rem;
+
+      .user-greeting h1 {
+        font-size: 1.5rem;
         font-weight: 700;
-        color: #333;
-        margin: 0 0 5px;
+        margin: 0;
+        line-height: 1.2;
       }
-      .ac-content p {
-        font-size: 0.8rem;
-        color: #666;
-        margin: 2px 0;
+
+      .user-greeting p {
+        margin: 4px 0 0;
+        font-size: 0.9rem;
+        opacity: 0.85;
       }
-      .ac-badge {
-        background: #e8f8f5;
-        color: #2ecc71;
-        padding: 5px 10px;
-        border-radius: 20px;
-        font-size: 0.65rem;
-        font-weight: bold;
+
+      .header-actions .btn-icon {
+        background: rgba(255, 255, 255, 0.2);
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(5px);
+        color: white;
+        transition: transform 0.2s;
+      }
+      .header-actions .btn-icon:active {
+        transform: scale(0.9);
+      }
+
+      /* --- MAIN CONTENT CONTAINER --- */
+      .main-container {
+        padding: 0 20px;
+        margin-top: -60px; /* Overlap ke header */
+        padding-bottom: 40px;
+      }
+
+      /* --- HERO CARD (SCAN BUTTON) --- */
+      .hero-scan-card {
+        background: white;
+        border-radius: 24px;
+        padding: 20px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 25px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .hero-scan-card::after {
+        content: "";
+        position: absolute;
+        right: -20px;
+        top: -20px;
+        width: 100px;
+        height: 100px;
+        background: radial-gradient(
+          circle,
+          rgba(74, 71, 163, 0.1) 0%,
+          rgba(255, 255, 255, 0) 70%
+        );
+        border-radius: 50%;
+      }
+
+      .hero-text h2 {
+        margin: 0;
+        font-size: 1.2rem;
+        color: var(--text-dark);
+        font-weight: 700;
+      }
+      .hero-text p {
+        margin: 5px 0 0;
+        font-size: 0.85rem;
+        color: var(--text-light);
+      }
+
+      .btn-scan-hero {
+        background: linear-gradient(135deg, #2ecc71, #26de81);
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 16px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 5px 15px rgba(46, 204, 113, 0.4);
+        font-size: 0.95rem;
       }
 
       /* --- MENU GRID --- */
-      .menu-title {
-        font-size: 1rem;
+      .section-title {
+        font-size: 1.1rem;
         font-weight: 700;
-        color: #333;
+        color: var(--text-dark);
         margin-bottom: 15px;
         display: flex;
         justify-content: space-between;
         align-items: center;
       }
+      .link-see-all {
+        font-size: 0.85rem;
+        color: var(--primary-color);
+        font-weight: 600;
+      }
 
       .menu-grid {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: repeat(3, 1fr);
         gap: 15px;
+        margin-bottom: 30px;
       }
 
-      .menu-item {
+      .menu-card {
         background: white;
-        padding: 20px;
+        padding: 18px 10px;
         border-radius: 20px;
         text-align: center;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
         transition: transform 0.1s;
+        border: 1px solid #f0f0f0;
       }
-      .menu-item:active {
-        transform: scale(0.96);
+      .menu-card:active {
+        transform: scale(0.95);
+        background: #fafafa;
       }
 
-      .icon-box {
+      .menu-icon {
         width: 45px;
         height: 45px;
-        border-radius: 12px;
+        border-radius: 14px;
+        margin: 0 auto 8px;
         display: flex;
         align-items: center;
         justify-content: center;
-        margin: 0 auto 10px;
         font-size: 22px;
-        background: #f0f0ff;
-        color: #3b0eac;
-      }
-
-      /* Warna Icon Menu */
-      .menu-item:nth-child(1) .icon-box {
-        background: #e3f2fd;
-        color: #2196f3;
-      }
-      .menu-item:nth-child(2) .icon-box {
-        background: #e8f5e9;
-        color: #4caf50;
-      }
-      .menu-item:nth-child(3) .icon-box {
-        background: #fff3e0;
-        color: #ff9800;
-      }
-      .menu-item:nth-child(4) .icon-box {
-        background: #ffebee;
-        color: #f44336;
       }
       .menu-label {
+        font-size: 0.8rem;
         font-weight: 600;
-        color: #444;
-        font-size: 0.85rem;
+        color: var(--text-dark);
       }
 
-      .logout-btn {
-        background: #ff4757;
-        color: white;
-        border: none;
+      .bg-purple {
+        background: #e0dcfc;
+        color: #4a47a3;
+      }
+      .bg-blue {
+        background: #dff9fb;
+        color: #22a6b3;
+      }
+      .bg-orange {
+        background: #ffeaa7;
+        color: #fdcb6e;
+      }
+      .bg-pink {
+        background: #ffcccc;
+        color: #ff7675;
+      }
+      .bg-green {
+        background: #c8f7dc;
+        color: #2ecc71;
+      }
+      .bg-gray {
+        background: #dfe6e9;
+        color: #636e72;
+      }
+
+      /* --- ACTIVITY LIST --- */
+      .activity-item {
+        background: white;
         padding: 15px;
-        border-radius: 15px;
-        font-weight: 600;
-        width: 100%;
-        margin-top: 30px;
-        box-shadow: 0 5px 15px rgba(255, 71, 87, 0.3);
-      }
-
-      /* ========================================= */
-      /* CUSTOM TOOLBAR (RAPIH)           */
-      /* ========================================= */
-
-      /* Reset Toolbar Framework7 */
-      .toolbar-bottom {
-        height: var(--toolbar-height) !important;
-        background: #ffffff !important;
-        box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.08) !important;
-        overflow: visible !important; /* PENTING agar tombol tengah muncul */
-        z-index: 5000 !important;
-      }
-
-      .toolbar-inner {
-        padding: 0 !important;
-        overflow: visible !important;
-        display: flex !important;
-        justify-content: space-between !important;
-        align-items: flex-end !important;
-      }
-
-      /* Item Toolbar (Bagi 5 kolom rata) */
-      .tab-link {
-        width: 20% !important; /* Memastikan lebar sama */
-        height: 100% !important;
-        display: flex !important;
-        flex-direction: column !important;
-        justify-content: center !important;
-        align-items: center !important;
-        color: #a5a5a5 !important;
-        transition: color 0.3s;
-        padding-bottom: 5px; /* Jarak dari bawah */
-      }
-
-      .tab-link-active {
-        color: #3b0eac !important; /* Warna Aktif */
-      }
-
-      .tab-link i {
-        font-size: 24px !important;
-        margin-bottom: 4px;
-      }
-
-      .tabbar-label {
-        font-size: 10px !important;
-        font-weight: 500;
-        letter-spacing: 0.3px;
-      }
-
-      /* --- TOMBOL TENGAH (FLOATING) --- */
-      .center-scan-wrapper {
-        position: relative;
-        width: 20%; /* Sama dengan link lain */
-        height: 100%;
-        display: flex;
-        justify-content: center;
-      }
-
-      .scan-button {
-        width: 64px;
-        height: 64px;
-        background: var(--primary-gradient);
-        border-radius: 50%;
-        position: absolute;
-        top: -25px; /* Mengangkat tombol ke atas */
+        border-radius: 18px;
+        margin-bottom: 12px;
         display: flex;
         align-items: center;
-        justify-content: center;
-        box-shadow: 0 8px 20px rgba(59, 14, 172, 0.4);
-        border: 5px solid var(--bg-color); /* Efek border sama dengan background halaman */
-        z-index: 10;
-        transition: transform 0.2s;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+        border-left: 4px solid var(--primary-color);
+      }
+      .ai-date {
+        background: #f1f2f6;
+        padding: 8px 12px;
+        border-radius: 12px;
+        text-align: center;
+        margin-right: 15px;
+        min-width: 50px;
+      }
+      .ai-date span {
+        display: block;
+        font-weight: 700;
+        color: var(--text-dark);
+        line-height: 1;
+      }
+      .ai-date small {
+        font-size: 0.7rem;
+        color: var(--text-light);
+        text-transform: uppercase;
       }
 
-      .scan-button:active {
-        transform: scale(0.9);
+      .ai-info h4 {
+        margin: 0;
+        font-size: 1rem;
+        color: var(--text-dark);
+      }
+      .ai-info p {
+        margin: 4px 0 0;
+        font-size: 0.8rem;
+        color: var(--text-light);
       }
 
-      .scan-button i {
-        color: white;
-        font-size: 30px;
+      /* --- LOGOUT --- */
+      .logout-wrapper {
+        margin-top: 40px;
+        margin-bottom: 20px;
       }
-
-      /* Label di bawah tombol scan */
-      .scan-label {
-        position: absolute;
-        bottom: 8px;
-        font-size: 10px;
-        color: #a5a5a5;
-        font-weight: 500;
-      }
-
-      /* Hilangkan highlight bawaan F7 */
-      .tab-link-highlight {
-        display: none !important;
+      .btn-logout {
+        background: #fff0f0;
+        color: #ff4757;
+        font-weight: 700;
+        border: 1px solid #ff4757;
+        border-radius: 15px;
+        padding: 12px;
+        width: 100%;
       }
     </style>
   </head>
@@ -291,154 +295,126 @@
     <div id="app">
       <div class="view view-main">
         <div class="page">
-          <div class="toolbar toolbar-bottom tabbar-icons">
-            <div class="toolbar-inner">
-              <a href="#" class="tab-link tab-link-active">
-                <i class="icon material-icons">home</i>
-                <span class="tabbar-label">Beranda</span>
-              </a>
-
-              <a href="#" class="tab-link" onclick="goToKegiatan()">
-                <i class="icon material-icons">event</i>
-                <span class="tabbar-label">Jadwal</span>
-              </a>
-
-              <div class="center-scan-wrapper">
-                <a href="#" onclick="goToPresensi()" class="scan-button ripple">
-                  <i class="icon material-icons">qr_code_scanner</i>
-                </a>
-                <span class="scan-label">Scan</span>
-              </div>
-
-              <a href="#" class="tab-link" onclick="goToRekap()">
-                <i class="icon material-icons">history</i>
-                <span class="tabbar-label">Riwayat</span>
-              </a>
-
-              <a href="#" class="tab-link" onclick="goToProfil()">
-                <i class="icon material-icons">person</i>
-                <span class="tabbar-label">Profil</span>
-              </a>
-            </div>
-          </div>
-
           <div class="page-content no-padding-top">
-            <div class="user-header" onclick="goToProfil()">
-              <div class="header-content">
-                <div class="avatar-container">
-                  <i
-                    class="icon material-icons"
-                    style="font-size: 32px; color: white"
-                    >person</i
+            <div class="dashboard-header">
+              <div class="header-top">
+                <div class="user-greeting" onclick="goToProfil()">
+                  <p>Selamat Datang,</p>
+                  <h1 id="userName">Loading...</h1>
+                  <span
+                    id="userOrg"
+                    style="
+                      font-size: 0.8rem;
+                      background: rgba(255, 255, 255, 0.2);
+                      padding: 2px 8px;
+                      border-radius: 10px;
+                      margin-top: 5px;
+                      display: inline-block;
+                    "
+                    >Organization</span
                   >
                 </div>
-                <div class="user-info">
-                  <h1 id="userName">Memuat...</h1>
-                  <p id="userOrg">Organisasi</p>
-                  <p id="userNim" style="font-size: 0.8rem; opacity: 0.8">
-                    NIM: -
-                  </p>
-                </div>
-                <a
-                  href="#"
-                  onclick="goToNotifikasi()"
-                  style="margin-left: auto; color: white"
-                >
-                  <i class="icon material-icons">notifications</i>
-                </a>
-              </div>
-            </div>
-
-            <div class="content-wrapper">
-              <div style="margin-top: 40px">
-                <div class="menu-title">
-                  Sedang Berlangsung
+                <div class="header-actions">
                   <a
                     href="#"
-                    onclick="goToKegiatan()"
-                    style="font-size: 0.8rem; color: #3b0eac"
-                    >Lihat Semua</a
+                    onclick="goToNotifikasi()"
+                    class="btn-icon ripple"
                   >
+                    <i class="f7-icons">bell_fill</i>
+                  </a>
                 </div>
+              </div>
+            </div>
 
-                <div
-                  class="activity-card-dashboard ripple"
-                  onclick="goToPresensi()"
+            <div class="main-container">
+              <div class="hero-scan-card ripple" onclick="goToPresensi()">
+                <div class="hero-text">
+                  <h2>Absensi Sekarang</h2>
+                  <p>Scan QR Code atau Selfie</p>
+                </div>
+                <button class="btn-scan-hero">
+                  <i class="icon material-icons">qr_code_scanner</i> Scan
+                </button>
+              </div>
+
+              <div class="section-title" style="margin-top: 10px">
+                Kegiatan Terdekat
+                <a href="#" onclick="goToKegiatan()" class="link-see-all"
+                  >Lihat Semua</a
                 >
-                  <div class="ac-content">
-                    <h3>Workshop Tech 4.0</h3>
-                    <p>📅 Hari Ini, 08:00 - 12:00</p>
-                    <p>📍 Aula Utama Kampus</p>
-                  </div>
-                  <div class="ac-badge">LIVE</div>
+              </div>
+
+              <div
+                id="upcoming-activities-container"
+                style="margin-bottom: 30px"
+              >
+                <div style="text-align: center; padding: 20px; color: #999">
+                  <span class="preloader color-multi"></span>
+                  <p style="font-size: 0.85rem; margin-top: 10px">
+                    Sinkronisasi Jadwal...
+                  </p>
                 </div>
               </div>
 
-              <div class="menu-title">Menu Utama</div>
+              <div class="section-title">Menu Utama</div>
               <div class="menu-grid">
-                <div class="menu-item ripple" onclick="goToPresensi()">
-                  <div class="icon-box">
-                    <i class="icon material-icons">qr_code_2</i>
-                  </div>
-                  <div class="menu-label">Presensi</div>
-                </div>
-
-                <div class="menu-item ripple" onclick="goToIzin()">
-                  <div class="icon-box">
-                    <i class="icon material-icons">assignment</i>
-                  </div>
-                  <div class="menu-label">Ajukan Izin</div>
-                </div>
-
-                <div class="menu-item ripple" onclick="goToRekap()">
-                  <div class="icon-box">
-                    <i class="icon material-icons">bar_chart</i>
-                  </div>
-                  <div class="menu-label">Rekap Saya</div>
-                </div>
-
-                <div class="menu-item ripple" onclick="goToNotifikasi()">
-                  <div class="icon-box">
-                    <i class="icon material-icons">notifications_active</i>
-                  </div>
-                  <div class="menu-label">Notifikasi</div>
-                </div>
-
-                <div class="menu-item ripple" onclick="goToKegiatan()">
-                  <div
-                    class="icon-box"
-                    style="background: #f3e5f5; color: #9c27b0"
-                  >
-                    <i class="icon material-icons">event</i>
+                <div class="menu-card ripple" onclick="goToKegiatan()">
+                  <div class="menu-icon bg-purple">
+                    <i class="f7-icons">calendar_today</i>
                   </div>
                   <div class="menu-label">Jadwal</div>
                 </div>
 
-                <div class="menu-item ripple" onclick="goToProfil()">
-                  <div
-                    class="icon-box"
-                    style="background: #eceff1; color: #607d8b"
-                  >
-                    <i class="icon material-icons">person_outline</i>
+                <div class="menu-card ripple" onclick="goToRekap()">
+                  <div class="menu-icon bg-blue">
+                    <i class="f7-icons">clock_fill</i>
+                  </div>
+                  <div class="menu-label">Riwayat</div>
+                </div>
+
+                <div class="menu-card ripple" onclick="goToIzin()">
+                  <div class="menu-icon bg-orange">
+                    <i class="f7-icons">envelope_open_fill</i>
+                  </div>
+                  <div class="menu-label">Izin</div>
+                </div>
+
+                <div class="menu-card ripple" onclick="goToRekap()">
+                  <div class="menu-icon bg-green">
+                    <i class="f7-icons">chart_bar_fill</i>
+                  </div>
+                  <div class="menu-label">Rekap</div>
+                </div>
+
+                <div class="menu-card ripple" onclick="goToNotifikasi()">
+                  <div class="menu-icon bg-pink">
+                    <i class="f7-icons">bell_circle_fill</i>
+                  </div>
+                  <div class="menu-label">Info</div>
+                </div>
+
+                <div class="menu-card ripple" onclick="goToProfil()">
+                  <div class="menu-icon bg-gray">
+                    <i class="f7-icons">person_crop_circle_fill</i>
                   </div>
                   <div class="menu-label">Profil</div>
                 </div>
               </div>
 
-              <button class="logout-btn ripple" onclick="logout()">
-                Logout
-              </button>
-
-              <div
-                style="
-                  text-align: center;
-                  margin-top: 20px;
-                  color: #999;
-                  font-size: 12px;
-                  margin-bottom: 20px;
-                "
-              >
-                Presinize v1.0
+              <div class="logout-wrapper">
+                <button class="btn-logout ripple" onclick="logout()">
+                  Keluar Akun
+                </button>
+                <div
+                  style="
+                    text-align: center;
+                    margin-top: 15px;
+                    color: #b2bec3;
+                    font-size: 11px;
+                  "
+                >
+                  Presinize App v1.2
+                </div>
               </div>
             </div>
           </div>
@@ -447,14 +423,13 @@
     </div>
 
     <script src="https://unpkg.com/framework7/framework7-bundle.min.js"></script>
-
     <script>
       var app = new Framework7({
         el: "#app",
-        theme: "ios", // Tema iOS agar lebih clean
+        theme: "ios",
       });
 
-      // --- LOGIKA PROGRAM ---
+      // --- LOGIKA UTAMA ---
       const currentUser = JSON.parse(localStorage.getItem("currentUser"));
 
       if (!currentUser) {
@@ -463,25 +438,24 @@
         document.getElementById("userName").textContent = currentUser.name;
         document.getElementById("userOrg").textContent =
           currentUser.organization;
-        document.getElementById("userNim").textContent =
-          "NIM: " + currentUser.nim;
+
+        loadUpcomingActivities();
       }
 
-      function logout() {
-        app.dialog.confirm("Yakin ingin keluar?", "Konfirmasi", function () {
-          localStorage.removeItem("currentUser");
-          window.location.href = "../auth/login.html";
-        });
-      }
-
-      // Navigasi
+      // --- NAVIGASI (DIPERBAIKI) ---
       function goToPresensi() {
         const org = currentUser.organization;
         if (org) window.location.href = `../presensi/Presensi-${org}.html`;
         else app.dialog.alert("Data organisasi tidak valid");
       }
+
+      function goToKegiatan() {
+        // PERBAIKAN: Mundur satu folder (../) untuk mengakses jadwal-kegiatan.html
+        window.location.href = "../jadwal-kegiatan.html";
+      }
+
       function goToIzin() {
-        window.location.href = "izin.html";
+        window.location.href = "../rekap/izin.html";
       }
       function goToRekap() {
         window.location.href = "../rekap/rekap-kehadiran.html";
@@ -489,11 +463,85 @@
       function goToNotifikasi() {
         window.location.href = "../notifications.html";
       }
-      function goToKegiatan() {
-        window.location.href = `../presensi/Presensi-${currentUser.organization}.html#tab-kegiatan`;
-      }
       function goToProfil() {
         window.location.href = `../presensi/Presensi-${currentUser.organization}.html#tab-profil`;
+      }
+
+      function logout() {
+        app.dialog.confirm("Yakin ingin keluar?", "Log Out", function () {
+          localStorage.removeItem("currentUser");
+          window.location.href = "../auth/login.html";
+        });
+      }
+
+      // --- LOAD DATA JADWAL (REALTIME) ---
+      function loadUpcomingActivities() {
+        if (!window.firebase) return;
+        const db = firebase.database();
+        const container = document.getElementById(
+          "upcoming-activities-container"
+        );
+
+        db.ref("kegiatan")
+          .limitToLast(3)
+          .on("value", (snapshot) => {
+            container.innerHTML = ""; // Clear loader
+
+            if (!snapshot.exists()) {
+              container.innerHTML = `
+              <div style="text-align: center; padding: 30px 20px; background: white; border-radius: 18px; border: 1px dashed #ddd;">
+                <i class="f7-icons" style="font-size: 32px; color: #ddd; margin-bottom: 10px;">calendar_today</i>
+                <p style="color: #999; margin: 0; font-size: 0.9rem;">Tidak ada kegiatan dalam waktu dekat.</p>
+              </div>`;
+              return;
+            }
+
+            const activities = [];
+            snapshot.forEach((child) => activities.push(child.val()));
+
+            // Urutkan & Tampilkan (Terbaru diatas)
+            activities.reverse().forEach((kegiatan) => {
+              const dateParts = kegiatan.tanggal.split("-");
+              const monthNames = [
+                "JAN",
+                "FEB",
+                "MAR",
+                "APR",
+                "MEI",
+                "JUN",
+                "JUL",
+                "AGU",
+                "SEP",
+                "OKT",
+                "NOV",
+                "DES",
+              ];
+              const monthIndex = parseInt(dateParts[1]) - 1;
+              const shortMonth = monthNames[monthIndex] || dateParts[1];
+
+              const html = `
+              <div class="activity-item ripple" onclick="goToPresensi()">
+                <div class="ai-date">
+                  <span>${dateParts[2]}</span>
+                  <small>${shortMonth}</small>
+                </div>
+                <div class="ai-info">
+                  <h4>${kegiatan.nama}</h4>
+                  <p>
+                    <i class="icon f7-icons" style="font-size: 14px; vertical-align: middle; color: #aaa;">clock</i> 
+                    ${kegiatan.waktu} • 
+                    <i class="icon f7-icons" style="font-size: 14px; vertical-align: middle; color: #aaa;">placemark_fill</i> 
+                    ${kegiatan.lokasi}
+                  </p>
+                </div>
+                <div style="margin-left: auto;">
+                  <i class="icon f7-icons text-color-primary" style="font-size: 20px;">chevron_right</i>
+                </div>
+              </div>
+            `;
+              container.insertAdjacentHTML("beforeend", html);
+            });
+          });
       }
     </script>
   </body>

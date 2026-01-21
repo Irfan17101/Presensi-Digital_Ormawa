@@ -1,184 +1,637 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+    />
     <title>Admin Dashboard - Presinize</title>
-    
+
     <link rel="stylesheet" href="https://unpkg.com/framework7/framework7-bundle.min.css" />
-    <script src="https://unpkg.com/framework7/framework7-bundle.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/framework7-icons/css/framework7-icons.css" />
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     <script src="../../js/firebase-config.js"></script>
 
+    <script src="https://unpkg.com/framework7/framework7-bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
     <style>
-        /* CSS Tetap Sama */
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; }
-        body { background: #f5f5f7; min-height: 100vh; }
-        .admin-header { background: linear-gradient(135deg, #ff6b6b, #ff8e8e); color: white; padding: 60px 20px 20px 20px; border-bottom-left-radius: 25px; border-bottom-right-radius: 25px; }
-        .admin-badge { background: rgba(255,255,255,0.3); padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; display: inline-block; margin-bottom: 10px; font-weight: 600; }
-        .admin-info h1 { font-size: 1.8rem; margin-bottom: 5px; font-weight: 700; }
-        .admin-info p { opacity: 0.9; margin-bottom: 5px; font-size: 0.9rem; }
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 20px; margin-top: -40px; }
-        .stat-card { background: white; padding: 20px; border-radius: 16px; box-shadow: 0 8px 25px rgba(0,0,0,0.1); text-align: center; border-left: 4px solid #ff6b6b; }
-        .stat-number { font-size: 2rem; font-weight: 700; color: #ff6b6b; margin-bottom: 5px; }
-        .stat-label { color: #666; font-size: 0.9rem; font-weight: 500; }
-        .admin-menu { padding: 20px; }
-        .menu-title { font-size: 1.2rem; font-weight: 700; color: #333; margin-bottom: 15px; }
-        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .menu-item { background: white; padding: 25px 15px; border-radius: 16px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); cursor: pointer; transition: all 0.3s ease; border: 2px solid transparent; }
-        .menu-item.admin-feature { border: 2px solid #ff6b6b; }
-        .menu-item:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
-        .menu-icon { font-size: 2rem; margin-bottom: 10px; }
-        .menu-label { font-weight: 600; color: #333; font-size: 0.9rem; }
-        .logout-section { padding: 20px; text-align: center; }
-        .logout-btn { background: #ff4757; color: white; border: none; padding: 15px 30px; border-radius: 12px; font-weight: 600; cursor: pointer; width: 100%; max-width: 200px; font-size: 1rem; }
-        .logout-btn:hover { background: #ff3742; }
+      /* --- CSS Reset & Basics --- */
+      * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif; }
+      
+      /* --- SCROLL FIX --- */
+      html, body, #app {
+        height: 100%;
+        width: 100%;
+        overflow: hidden;
+        position: relative;
+        background: #f2f3f5; 
+      }
+      .page-content {
+        height: 100%;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 100px;
+      }
+
+      /* --- Header --- */
+      .admin-header {
+        background: linear-gradient(135deg, #2c3e50, #4ca1af);
+        color: white;
+        padding: 50px 20px 70px 20px;
+        border-radius: 0 0 30px 30px;
+        box-shadow: 0 4px 20px rgba(44, 62, 80, 0.3);
+        flex-shrink: 0;
+      }
+      .admin-badge { background: rgba(255, 255, 255, 0.2); padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; display: inline-block; margin-bottom: 8px; backdrop-filter: blur(4px); }
+      .admin-info h1 { font-size: 1.6rem; font-weight: 700; margin: 0; }
+      .admin-info p { opacity: 0.85; font-size: 0.9rem; margin-top: 4px; }
+
+      /* --- Stats --- */
+      .stats-container { padding: 0 20px; margin-top: -50px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+      .stat-card { background: white; padding: 15px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05); text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+      .stat-value { font-size: 1.8rem; font-weight: 800; color: #2c3e50; }
+      .stat-label { font-size: 0.75rem; color: #7f8c8d; font-weight: 600; text-transform: uppercase; margin-top: 5px; }
+
+      /* --- Action Grid --- */
+      .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 20px; }
+      .action-btn { background: white; border: none; padding: 20px; border-radius: 18px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03); text-align: left; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; position: relative; overflow: hidden; }
+      .action-btn:active { transform: scale(0.97); }
+      .action-btn i { font-size: 28px; margin-bottom: 10px; display: block; }
+      .action-btn h3 { font-size: 1rem; color: #34495e; font-weight: 700; margin: 0; }
+      .action-btn p { font-size: 0.75rem; color: #95a5a6; margin: 4px 0 0 0; line-height: 1.3; }
+      
+      .ab-blue i { color: #3498db; }
+      .ab-orange i { color: #e67e22; }
+      .ab-green i { color: #2ecc71; }
+      .ab-red i { color: #e74c3c; }
+      .ab-purple i { color: #9b59b6; } 
+      .ab-yellow i { color: #f1c40f; }
+
+      /* --- Section Header --- */
+      .section-header { padding: 10px 20px 10px; display: flex; justify-content: space-between; align-items: center; }
+      .section-title { font-size: 1.1rem; font-weight: 700; color: #2c3e50; }
+      .live-dot { width: 8px; height: 8px; background: #e74c3c; border-radius: 50%; display: inline-block; animation: blink 1.5s infinite; margin-left: 5px; }
+
+      /* --- 1. LIVE MONITORING STYLE (RAPIG) --- */
+      .attendance-list-container { padding: 0 20px; margin-bottom: 20px; }
+      .live-card {
+        background: white; border-radius: 14px; padding: 12px 15px; margin-bottom: 10px;
+        display: flex; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        border-left: 4px solid #2ecc71; /* Hijau Hadir */
+        transition: all 0.3s ease;
+      }
+      .live-card.new-entry { animation: slideDown 0.5s ease-out; background-color: #e8f5e9; }
+      .lc-icon { width: 40px; height: 40px; border-radius: 50%; background: #f0f2f5; display: flex; align-items: center; justify-content: center; margin-right: 12px; font-size: 18px; color: #555; }
+      .lc-info { flex: 1; }
+      .lc-name { font-weight: 700; color: #2c3e50; font-size: 0.95rem; }
+      .lc-meta { font-size: 0.75rem; color: #7f8c8d; margin-top: 2px; }
+      .lc-time { background: #eee; padding: 2px 6px; border-radius: 4px; font-weight: 700; font-size: 0.7rem; margin-right: 5px;}
+
+      /* --- 2. JADWAL STYLE (RAPIG - Kalender) --- */
+      .schedule-list-container { padding: 0 20px; margin-bottom: 20px; }
+      .schedule-card {
+        background: white; border-radius: 14px; padding: 15px; margin-bottom: 12px;
+        display: flex; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+      }
+      .sc-date-box {
+        background: #f4f6f8; border-radius: 10px; padding: 8px; text-align: center;
+        min-width: 55px; margin-right: 15px;
+      }
+      .sc-date { font-size: 18px; font-weight: 800; color: #2c3e50; line-height: 1; }
+      .sc-month { font-size: 10px; font-weight: 600; color: #95a5a6; text-transform: uppercase; margin-top: 2px; }
+      .sc-info h4 { margin: 0; font-size: 1rem; color: #34495e; font-weight: 700; }
+      .sc-info p { margin: 4px 0 0; font-size: 0.8rem; color: #7f8c8d; }
+
+      /* --- 3. IZIN POPUP STYLE (WARNA & RAPIH) --- */
+      .izin-card {
+        background: white; border-radius: 14px; padding: 15px; margin-bottom: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05); position: relative; overflow: hidden;
+        border-left: 5px solid #ccc;
+      }
+      .izin-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+      .izin-name { font-weight: 700; font-size: 1rem; color: #2c3e50; }
+      .izin-badge { font-size: 0.7rem; font-weight: 700; padding: 4px 8px; border-radius: 6px; text-transform: uppercase; }
+      .izin-reason { font-size: 0.9rem; color: #555; font-style: italic; background: #f9f9f9; padding: 8px; border-radius: 8px; }
+      .izin-date { font-size: 0.75rem; color: #999; margin-top: 8px; text-align: right; }
+
+      /* Warna Spesifik Izin */
+      .border-sakit { border-left-color: #e74c3c !important; }
+      .badge-sakit { background: #fadbd8; color: #c0392b; }
+      
+      .border-izin { border-left-color: #3498db !important; }
+      .badge-izin { background: #d6eaf8; color: #2980b9; }
+      
+      .border-dinas { border-left-color: #f39c12 !important; }
+      .badge-dinas { background: #fdebd0; color: #d35400; }
+
+      /* --- Logout --- */
+      .logout-container { padding: 30px 20px; }
+      .btn-logout { background: #ffebeb; color: #c0392b; width: 100%; border: none; padding: 15px; border-radius: 12px; font-weight: 700; cursor: pointer; }
+
+      /* --- ANIMATIONS --- */
+      @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+      @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+      .custom-popup { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.98); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; animation: fadeIn 0.3s ease; }
+      #qrcode { margin: 20px; padding: 10px; background: white; border-radius: 10px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); }
+      @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
-</head>
-<body>
-    <div class="admin-header">
-        <div class="admin-badge">ADMIN</div>
-        <div class="admin-info">
-            <h1 id="adminName">Admin Name</h1>
-            <p id="adminOrg">Organization</p>
-            <p id="adminEmail">Email: -</p>
-        </div>
-    </div>
+  </head>
+  <body>
+    <div id="app">
+      <div class="view view-main">
+        <div class="page">
+          <div class="page-content">
+            
+            <div class="admin-header">
+              <div class="admin-badge">ADMINISTRATOR</div>
+              <div class="admin-info">
+                <h1 id="adminName">Loading...</h1>
+                <p id="adminOrg">Memuat data organisasi...</p>
+              </div>
+            </div>
 
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-number" id="totalAnggota">0</div>
-            <div class="stat-label">Total Anggota</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number" id="persentaseKehadiran">0%</div>
-            <div class="stat-label">Rata-rata Kehadiran</div>
-        </div>
-    </div>
+            <div class="stats-container">
+              <div class="stat-card">
+                <div class="stat-value" id="totalAnggota">0</div>
+                <div class="stat-label">Total Anggota</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-value" id="hadirHariIni">0</div>
+                <div class="stat-label">Hadir Hari Ini</div>
+              </div>
+            </div>
 
-    <div class="admin-menu">
-        <div class="menu-title">Menu Admin</div>
-        <div class="menu-grid">
-            <div class="menu-item admin-feature" onclick="kelolaAnggota()">
-                <div class="menu-icon">👥</div>
-                <div class="menu-label">Kelola Anggota</div>
+            <div class="section-header" style="margin-top: 20px">
+              <div class="section-title">Aksi Cepat</div>
             </div>
-            <div class="menu-item admin-feature" onclick="laporanPresensi()">
-                <div class="menu-icon">📊</div>
-                <div class="menu-label">Laporan Presensi</div>
+            <div class="action-grid">
+              <button class="action-btn ab-blue" onclick="buatQRPresensi()">
+                <i class="f7-icons">qrcode</i>
+                <h3>Buka Presensi</h3>
+                <p>Generate QR Code</p>
+              </button>
+              <button class="action-btn ab-orange" onclick="bukaPopupKegiatan()">
+                <i class="f7-icons">calendar_badge_plus</i>
+                <h3>Buat Jadwal</h3>
+                <p>Posting kegiatan</p>
+              </button>
+              <button class="action-btn ab-purple" onclick="bukaPopupRekap()">
+                <i class="f7-icons">doc_text_search</i>
+                <h3>Rekap Absensi</h3>
+                <p>Data scan & selfie</p>
+              </button>
+              <button class="action-btn ab-yellow" onclick="bukaPopupIzin()">
+                <i class="f7-icons">envelope_open_fill</i>
+                <h3>Data Izin</h3>
+                <p>Lihat pengajuan izin</p>
+              </button>
+              <button class="action-btn ab-red" onclick="lihatNotifikasi()">
+                <i class="f7-icons">bell_fill</i>
+                <h3>Pengumuman</h3>
+                <p>Kirim notifikasi</p>
+              </button>
             </div>
-            <div class="menu-item admin-feature" onclick="kelolaKegiatan()">
-                <div class="menu-icon">📅</div>
-                <div class="menu-label">Kelola Kegiatan</div>
-            </div>
-            <div class="menu-item admin-feature" onclick="exportData()">
-                <div class="menu-icon">📤</div>
-                <div class="menu-label">Export Data</div>
-            </div>
-            <div class="menu-item" onclick="lihatNotifikasi()">
-                <div class="menu-icon">🔔</div>
-                <div class="menu-label">Notifikasi</div>
-            </div>
-            <div class="menu-item" onclick="lihatRekap()">
-                <div class="menu-icon">📋</div>
-                <div class="menu-label">Rekap Izin</div>
-            </div>
-        </div>
-    </div>
 
-    <div class="logout-section">
-        <button class="logout-btn" onclick="logout()">Logout</button>
+            <div class="section-header">
+              <div class="section-title">
+                Live Monitoring <span class="live-dot"></span>
+              </div>
+              <div class="chip color-green" id="live-counter-chip"><div class="chip-label">0</div></div>
+            </div>
+            <div class="attendance-list-container" id="attendance-list-preview">
+              <div id="empty-state" style="text-align: center; padding: 20px; color: #999; border: 1px dashed #ddd; border-radius: 12px;">
+                Belum ada data masuk.
+              </div>
+            </div>
+
+            <div class="section-header" style="margin-top: 10px">
+              <div class="section-title">Jadwal Aktif</div>
+            </div>
+            <div class="schedule-list-container">
+              <div class="list media-list no-hairlines" style="margin: 0;">
+                <ul id="admin-event-list" style="background: transparent;"></ul>
+              </div>
+            </div>
+
+            <div class="logout-container">
+              <button class="btn-logout" onclick="logout()">KELUAR DARI DASHBOARD</button>
+            </div>
+            
+            <div style="height: 50px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="popup" id="popup-rekap">
+        <div class="view">
+          <div class="page">
+            <div class="navbar" style="background: #9b59b6; color: white">
+              <div class="navbar-bg"></div>
+              <div class="navbar-inner">
+                <div class="title" style="color: white">Rekap Kehadiran</div>
+                <div class="right"><a href="#" class="link popup-close" style="color: white">Tutup</a></div>
+              </div>
+            </div>
+            <form class="searchbar searchbar-init" data-search-container=".list-rekap-lengkap" data-search-in=".item-title">
+              <div class="searchbar-inner">
+                <div class="searchbar-input-wrap">
+                  <input type="search" placeholder="Cari Nama / Tanggal..." />
+                  <i class="searchbar-icon"></i>
+                  <span class="input-clear-button"></span>
+                </div>
+                <span class="searchbar-disable-button">Batal</span>
+              </div>
+            </form>
+            <div class="page-content">
+              <div class="list media-list list-rekap-lengkap no-hairlines">
+                <ul id="container-rekap-list" style="padding: 0 16px;"></ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="popup" id="popup-izin">
+        <div class="view">
+          <div class="page">
+            <div class="navbar" style="background: linear-gradient(135deg, #f1c40f, #f39c12); color: white">
+              <div class="navbar-bg"></div>
+              <div class="navbar-inner">
+                <div class="title" style="color: white">Daftar Pengajuan Izin</div>
+                <div class="right"><a href="#" class="link popup-close" style="color: white">Tutup</a></div>
+              </div>
+            </div>
+            <form class="searchbar searchbar-init" data-search-container=".list-izin-lengkap" data-search-in=".izin-name">
+              <div class="searchbar-inner">
+                <div class="searchbar-input-wrap">
+                  <input type="search" placeholder="Cari Nama Anggota..." />
+                  <i class="searchbar-icon"></i>
+                  <span class="input-clear-button"></span>
+                </div>
+                <span class="searchbar-disable-button">Batal</span>
+              </div>
+            </form>
+            <div class="page-content">
+              <div class="list media-list list-izin-lengkap no-hairlines">
+                <ul id="container-izin-list" style="padding: 0 16px; background: transparent;"></ul>
+                <div class="block searchbar-not-found">
+                    <div class="block-inner">Data tidak ditemukan</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="popup" id="popup-tambah-kegiatan">
+        <div class="view">
+          <div class="page">
+            <div class="navbar" style="background: #2c3e50; color: white">
+              <div class="navbar-bg"></div>
+              <div class="navbar-inner">
+                <div class="title" style="color: white">Tambah Kegiatan Baru</div>
+                <div class="right">
+                  <a href="#" class="link popup-close" style="color: white">Batal</a>
+                </div>
+              </div>
+            </div>
+            <div class="page-content">
+              <div class="block-title">Informasi Kegiatan</div>
+              <div class="list no-hairlines-md">
+                <ul>
+                  <li class="item-content item-input">
+                    <div class="item-inner">
+                      <div class="item-title item-label">Nama Kegiatan</div>
+                      <div class="item-input-wrap">
+                        <input type="text" id="inputNamaKegiatan" placeholder="Misal: Rapat Rutin Bulanan" />
+                      </div>
+                    </div>
+                  </li>
+                  <li class="item-content item-input">
+                    <div class="item-inner">
+                      <div class="item-title item-label">Tanggal Pelaksanaan</div>
+                      <div class="item-input-wrap">
+                        <input type="date" id="inputTanggalKegiatan" />
+                      </div>
+                    </div>
+                  </li>
+                  <li class="item-content item-input">
+                    <div class="item-inner">
+                      <div class="item-title item-label">Waktu Mulai</div>
+                      <div class="item-input-wrap">
+                        <input type="time" id="inputWaktuKegiatan" />
+                      </div>
+                    </div>
+                  </li>
+                  <li class="item-content item-input">
+                    <div class="item-inner">
+                      <div class="item-title item-label">Lokasi</div>
+                      <div class="item-input-wrap">
+                        <input type="text" id="inputLokasiKegiatan" placeholder="Misal: Aula Gedung B" />
+                      </div>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+              <div class="block">
+                <button class="button button-fill button-large button-round" style="background: #27ae60" onclick="simpanKegiatan()">
+                  POSTING JADWAL
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="qrPopup" class="custom-popup">
+        <div style="text-align: center">
+          <h2 style="color: #333; margin-bottom: 5px; font-size: 1.5rem">Scan Presensi</h2>
+          <p id="qrDateDisplay" style="color: #888; margin-top: 0">Tanggal...</p>
+          <div id="qrcode"></div>
+          <div style="margin-top: 20px">
+            <div class="chip color-green"><div class="chip-label">SESI AKTIF</div></div>
+          </div>
+          <button class="button button-fill color-black button-round" style="margin-top: 20px; width: 150px; margin-left: auto; margin-right: auto;" onclick="tutupQR()">
+            Tutup
+          </button>
+        </div>
+      </div>
     </div>
 
     <script>
-        // Cek login admin
-        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-        
-        if(!currentUser) {
-            // PERBAIKAN: Keluar folder dashboard -> masuk folder auth
-            window.location.href = '../auth/login.html';
-        } else if(currentUser.role !== 'admin') {
-            alert('Akses ditolak. Hanya untuk admin.');
-            // Tetap di folder dashboard, hanya ganti file
-            window.location.href = 'dashboard-anggota.html';
-        } else {
-            document.getElementById('adminName').textContent = currentUser.name || 'Admin';
-            document.getElementById('adminOrg').textContent = currentUser.organization || 'Organisasi';
-            document.getElementById('adminEmail').textContent = 'Email: ' + currentUser.email;
+      var app = new Framework7({ el: "#app", theme: "ios" });
+
+      // === 1. AUTH & INIT ===
+      const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
+      if (!currentUser) {
+        window.location.href = "../auth/login.html";
+      } else if (currentUser.role !== "admin") {
+        alert("Akses Ditolak.");
+        window.location.href = "dashboard-anggota.html";
+      } else {
+        document.getElementById("adminName").textContent = currentUser.name;
+        document.getElementById("adminOrg").textContent = currentUser.organization;
+
+        loadStats();
+        initLiveMonitor(); 
+        loadAdminEvents();
+      }
+
+      // === 2. LIVE MONITOR (TAMPILAN DIPERBAIKI - CLEAN CARD) ===
+      function initLiveMonitor() {
+        const today = new Date().toISOString().slice(0, 10);
+        const listContainer = document.getElementById("attendance-list-preview");
+        const emptyState = document.getElementById("empty-state");
+        const counterDisplay = document.getElementById("hadirHariIni");
+        const counterChip = document.getElementById("live-counter-chip").querySelector(".chip-label");
+        let totalCount = 0;
+
+        firebase.database().ref("absensi/" + today).on("child_added", (snap) => {
+          const data = snap.val();
+          if (emptyState) emptyState.style.display = "none";
+
+          totalCount++;
+          counterDisplay.textContent = totalCount;
+          counterChip.textContent = totalCount;
+
+          let icon = data.metode === "Selfie" ? "camera_fill" : "person_fill";
+          
+          const card = document.createElement("div");
+          card.className = "live-card new-entry";
+          card.innerHTML = `
+            <div class="lc-icon"><i class="f7-icons">${icon}</i></div>
+            <div class="lc-info">
+                <div class="lc-name">${data.nama}</div>
+                <div class="lc-meta">
+                    <span class="lc-time">${data.waktu}</span>
+                    <span style="color:#2ecc71; font-weight:600; font-size:0.7rem;">• ${data.metode}</span>
+                </div>
+            </div>
+          `;
+          listContainer.prepend(card);
+          if(listContainer.children.length > 5) listContainer.lastElementChild.remove();
+        });
+      }
+
+      // === 3. REKAP ABSENSI ===
+      function bukaPopupRekap() {
+        app.popup.open('#popup-rekap');
+        loadRekapSemua();
+      }
+
+      function loadRekapSemua() {
+        const listContainer = document.getElementById("container-rekap-list");
+        listContainer.innerHTML = '<div style="text-align:center; padding:20px"><span class="preloader color-multi"></span><p>Mengambil data...</p></div>';
+
+        firebase.database().ref("absensi").once("value").then((snapshot) => {
+          listContainer.innerHTML = ""; 
+          if (!snapshot.exists()) {
+            listContainer.innerHTML = '<li class="item-content"><div class="item-inner"><div class="item-title" style="color:#999; text-align:center; width:100%">Belum ada data absensi.</div></div></li>';
+            return;
+          }
+          let flatData = [];
+          snapshot.forEach(dateSnap => {
+             const dateKey = dateSnap.key;
+             dateSnap.forEach(userSnap => {
+                const item = userSnap.val(); item.tanggal = dateKey; flatData.push(item);
+             });
+          });
+          flatData.sort((a,b) => new Date(b.tanggal + ' ' + b.waktu) - new Date(a.tanggal + ' ' + a.waktu));
+
+          flatData.forEach(data => {
+             let iconColor = data.metode === "Selfie" ? "pink" : "blue";
+             let icon = data.metode === "Selfie" ? "camera_fill" : "qrcode";
+             const dateParts = data.tanggal.split('-');
+             const prettyDate = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
+
+             const li = document.createElement('li');
+             li.innerHTML = `
+               <div class="item-content">
+                 <div class="item-media">
+                   <div style="background: #f0f0f0; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                     <i class="f7-icons text-color-${iconColor}" style="font-size:20px">${icon}</i>
+                   </div>
+                 </div>
+                 <div class="item-inner">
+                   <div class="item-title-row">
+                     <div class="item-title fw-bold">${data.nama}</div>
+                     <div class="item-after text-color-black" style="font-size:12px">${prettyDate}</div>
+                   </div>
+                   <div class="item-subtitle" style="font-size:12px; color:#888;">${data.nim || '-'} • ${data.kegiatan || 'Umum'}</div>
+                   <div class="item-text" style="color: ${data.metode === 'Selfie' ? '#e91e63' : '#2196f3'}; font-size: 11px; font-weight:600; text-transform:uppercase;">
+                     ${data.waktu} • VIA ${data.metode}
+                   </div>
+                 </div>
+               </div>`;
+             listContainer.appendChild(li);
+          });
+        });
+      }
+
+      // === 4. DATA IZIN (WARNA & TAMPILAN SESUAI PERMINTAAN) ===
+      function bukaPopupIzin() {
+        app.popup.open('#popup-izin');
+        loadDataIzin();
+      }
+
+      function loadDataIzin() {
+        const listContainer = document.getElementById("container-izin-list");
+        listContainer.innerHTML = '<div style="text-align:center; padding:20px"><span class="preloader color-multi"></span><p>Memuat data izin...</p></div>';
+
+        firebase.database().ref("izin").once("value").then((snapshot) => {
+          listContainer.innerHTML = "";
+          if (!snapshot.exists()) {
+             listContainer.innerHTML = '<div style="text-align:center; color:#999; margin-top:20px;">Tidak ada pengajuan izin.</div>';
+             return;
+          }
+
+          const izinData = [];
+          snapshot.forEach(child => izinData.push(child.val()));
+          izinData.sort((a,b) => new Date(b.waktu) - new Date(a.waktu));
+
+          izinData.forEach(d => {
+             // LOGIKA WARNA & STYLE BARU
+             let borderClass = "border-izin"; 
+             let badgeClass = "badge-izin";
+             let iconColor = "text-color-blue";
+             let iconName = "person_fill";
+
+             if(d.keterangan === 'Sakit') {
+                borderClass = "border-sakit";
+                badgeClass = "badge-sakit";
+                iconColor = "text-color-red";
+                iconName = "heart_fill";
+             } else if(d.keterangan === 'Dinas') {
+                borderClass = "border-dinas";
+                badgeClass = "badge-dinas";
+                iconColor = "text-color-orange";
+                iconName = "briefcase_fill";
+             }
+
+             const li = document.createElement('li');
+             li.style.listStyle = "none";
+             li.innerHTML = `
+                <div class="izin-card ${borderClass}">
+                  <div class="izin-header">
+                     <div class="izin-name">${d.nama}</div>
+                     <span class="izin-badge ${badgeClass}">${d.keterangan}</span>
+                  </div>
+                  <div style="display:flex; align-items:flex-start; margin-bottom:5px;">
+                     <i class="f7-icons ${iconColor}" style="font-size:16px; margin-right:6px; margin-top:2px;">${iconName}</i>
+                     <div class="izin-reason">"${d.alasan}"</div>
+                  </div>
+                  <div class="izin-date">
+                     <i class="f7-icons" style="font-size:12px;">calendar</i> ${d.waktu}
+                  </div>
+                </div>
+             `;
+             listContainer.appendChild(li);
+          });
+        });
+      }
+
+      // === 5. JADWAL (TAMPILAN KALENDER) ===
+      function bukaPopupKegiatan() { app.popup.open("#popup-tambah-kegiatan"); }
+
+      function simpanKegiatan() {
+        const nama = document.getElementById("inputNamaKegiatan").value;
+        const tgl = document.getElementById("inputTanggalKegiatan").value;
+        const jam = document.getElementById("inputWaktuKegiatan").value;
+        const loc = document.getElementById("inputLokasiKegiatan").value;
+
+        if (!nama || !tgl || !jam) { app.dialog.alert("Lengkapi data."); return; }
+
+        firebase.database().ref("kegiatan").push().set({
+            nama: nama, tanggal: tgl, waktu: jam, lokasi: loc || "Online",
+            created_at: firebase.database.ServerValue.TIMESTAMP,
+        }).then(() => {
+            app.dialog.alert("Jadwal diposting!");
+            app.popup.close("#popup-tambah-kegiatan");
+        });
+      }
+
+      function loadAdminEvents() {
+        const list = document.getElementById("admin-event-list");
+        const monthNames = ["JAN", "FEB", "MAR", "APR", "MEI", "JUN", "JUL", "AGU", "SEP", "OKT", "NOV", "DES"];
+
+        firebase.database().ref("kegiatan").limitToLast(5).on("value", (snap) => {
+            list.innerHTML = ""; 
+            if (!snap.exists()) { list.innerHTML = '<div class="block text-align-center text-color-gray">Belum ada jadwal.</div>'; return; }
+            const events = []; snap.forEach((s) => events.push({key: s.key, ...s.val()}));
             
-            loadAdminStats();
+            events.reverse().forEach((ev) => {
+              // Parse Date
+              const dateParts = ev.tanggal.split("-");
+              const d = dateParts[2];
+              const m = monthNames[parseInt(dateParts[1]) - 1];
+
+              const li = document.createElement("li");
+              li.className = "swipeout";
+              li.innerHTML = `
+              <div class="swipeout-content">
+                <div class="schedule-card">
+                   <div class="sc-date-box">
+                      <div class="sc-date">${d}</div>
+                      <div class="sc-month">${m}</div>
+                   </div>
+                   <div class="sc-info">
+                      <h4>${ev.nama}</h4>
+                      <p>${ev.waktu} • ${ev.lokasi}</p>
+                   </div>
+                </div>
+              </div>
+              <div class="swipeout-actions-right">
+                <a href="#" class="swipeout-delete color-red" onclick="hapusKegiatan('${ev.key}')">Hapus</a>
+              </div>`;
+              list.appendChild(li);
+            });
+          });
+      }
+
+      function loadStats() {
+        if (window.firebase) {
+          firebase.database().ref("users").once("value").then((snap) => {
+            let count = 0;
+            snap.forEach((user) => { if (user.val().role === "user") count++; });
+            document.getElementById("totalAnggota").textContent = count;
+          });
         }
+      }
 
-        function loadAdminStats() {
-            if (window.firebase) {
-                const db = firebase.database();
-                // Hitung total anggota
-                db.ref('users').once('value').then((snapshot) => {
-                    const users = snapshot.val();
-                    let totalAnggota = 0;
-                    if (users) {
-                        Object.keys(users).forEach(uid => {
-                            if (users[uid].role === 'user') totalAnggota++;
-                        });
-                    }
-                    document.getElementById('totalAnggota').textContent = totalAnggota;
-                });
-                
-                // Hitung persentase kehadiran
-                db.ref('presensi').once('value').then((snapshot) => {
-                    const presensi = snapshot.val();
-                    let totalHadir = 0;
-                    let totalRecords = 0;
-                    if (presensi) {
-                        Object.keys(presensi).forEach(key => {
-                            if (presensi[key].status === 'Hadir') totalHadir++;
-                            totalRecords++;
-                        });
-                    }
-                    const persentase = totalRecords > 0 ? Math.round((totalHadir / totalRecords) * 100) : 0;
-                    document.getElementById('persentaseKehadiran').textContent = persentase + '%';
-                });
-            }
-        }
+      window.hapusKegiatan = function (id) {
+        app.dialog.confirm("Hapus jadwal?", "Konfirmasi", () => { firebase.database().ref("kegiatan/" + id).remove(); });
+      };
 
-        function kelolaAnggota() { alert('Fitur Kelola Anggota akan segera hadir!'); }
+      function buatQRPresensi() {
+        const popup = document.getElementById("qrPopup");
+        const qrBox = document.getElementById("qrcode");
+        const today = new Date();
+        document.getElementById("qrDateDisplay").textContent = today.toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long" });
 
-        function laporanPresensi() {
-            // Keluar folder dashboard -> masuk folder rekap
-            window.location.href = '../rekap/kehadiran.html';
-        }
+        const payload = JSON.stringify({
+          tipe: "presensi_harian", tanggal: today.toISOString().split("T")[0], token: "SEC-" + Math.random().toString(36).substring(7)
+        });
 
-        function kelolaKegiatan() { alert('Fitur Kelola Kegiatan akan segera hadir!'); }
-        function exportData() { alert('Fitur Export Data akan segera hadir!'); }
+        qrBox.innerHTML = "";
+        new QRCode(qrBox, { text: payload, width: 220, height: 220 });
+        popup.style.display = "flex";
+      }
 
-        function lihatNotifikasi() {
-            // Keluar folder dashboard -> cari file di root pages
-            window.location.href = '../notifications.html';
-        }
-
-        function lihatRekap() {
-            // Keluar folder dashboard -> masuk folder rekap
-            window.location.href = '../rekap/izin.html';
-        }
-
-        async function logout() {
-            try {
-                if (window.firebase) {
-                    await firebase.auth().signOut();
-                }
-                localStorage.removeItem('currentUser');
-                // PERBAIKAN: Keluar folder dashboard -> masuk folder auth
-                window.location.href = '../auth/login.html';
-            } catch (error) {
-                console.error('Logout error:', error);
-                localStorage.removeItem('currentUser');
-                window.location.href = '../auth/login.html';
-            }
-        }
+      function tutupQR() { document.getElementById("qrPopup").style.display = "none"; }
+      function laporanPresensi() { window.location.href = "../rekap/rekap-kehadiran.html"; }
+      function lihatNotifikasi() { window.location.href = "../notifications.html"; }
+      function logout() {
+        app.dialog.confirm("Keluar?", "Log Out", () => {
+          firebase.auth().signOut().then(() => { localStorage.removeItem("currentUser"); window.location.href = "../auth/login.html"; });
+        });
+      }
     </script>
-</body>
+  </body>
 </html>

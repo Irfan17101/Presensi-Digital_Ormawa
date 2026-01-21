@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+    />
+    <title>Ajukan Izin</title>
+
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/framework7/framework7-bundle.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/framework7-icons/css/framework7-icons.css"
+    />
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="../../js/firebase-config.js"></script>
+
+    <style>
+      /* Sesuaikan Tema dengan Dashboard Anggota */
+      :root {
+        --primary-color: #4a47a3;
+        --secondary-color: #706fd3;
+        --bg-color: #f7f9fc;
+        --card-bg: #ffffff;
+      }
+
+      body {
+        background-color: var(--bg-color);
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+          sans-serif;
+      }
+
+      .navbar-bg {
+        background: linear-gradient(
+          135deg,
+          var(--primary-color),
+          var(--secondary-color)
+        );
+      }
+      .navbar .title,
+      .navbar .link {
+        color: white;
+      }
+
+      .form-card {
+        background: var(--card-bg);
+        border-radius: 20px;
+        padding: 24px;
+        box-shadow: 0 10px 30px rgba(74, 71, 163, 0.08);
+        margin: 20px 16px;
+      }
+
+      .input-wrapper {
+        margin-bottom: 24px;
+      }
+
+      .input-label {
+        font-size: 0.9rem;
+        color: #636e72;
+        margin-bottom: 8px;
+        display: block;
+        font-weight: 600;
+      }
+
+      .custom-input,
+      .custom-select,
+      .custom-textarea {
+        width: 100%;
+        padding: 14px;
+        border: 1px solid #dfe6e9;
+        border-radius: 12px;
+        font-size: 1rem;
+        background: #fdfdfd;
+        transition: all 0.3s;
+        box-sizing: border-box;
+        color: #2d3436;
+        font-family: inherit;
+      }
+
+      .custom-input:focus,
+      .custom-select:focus,
+      .custom-textarea:focus {
+        border-color: var(--primary-color);
+        background: white;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(74, 71, 163, 0.1);
+      }
+
+      .btn-submit {
+        background: linear-gradient(
+          135deg,
+          var(--primary-color),
+          var(--secondary-color)
+        );
+        color: white;
+        border: none;
+        width: 100%;
+        padding: 16px;
+        border-radius: 14px;
+        font-weight: 700;
+        font-size: 1rem;
+        box-shadow: 0 8px 20px rgba(74, 71, 163, 0.3);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        transition: transform 0.2s;
+      }
+      .btn-submit:active {
+        transform: scale(0.98);
+      }
+
+      .history-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        color: var(--primary-color);
+        font-weight: 600;
+        text-decoration: none;
+        padding: 10px 20px;
+        background: rgba(74, 71, 163, 0.05);
+        border-radius: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <div class="view view-main">
+        <div class="page">
+          <div class="navbar">
+            <div class="navbar-bg"></div>
+            <div class="navbar-inner">
+              <div class="left">
+                <a
+                  href="../dashboard/dashboard-anggota.html"
+                  class="link icon-only external"
+                >
+                  <i class="icon material-icons">arrow_back</i>
+                </a>
+              </div>
+              <div class="title">Ajukan Izin</div>
+            </div>
+          </div>
+
+          <div class="page-content">
+            <div
+              class="block-title"
+              style="
+                margin-top: 25px;
+                font-size: 1.1rem;
+                text-align: center;
+                color: #2d3436;
+              "
+            >
+              Formulir Ketidakhadiran
+            </div>
+
+            <div class="form-card">
+              <div class="input-wrapper">
+                <label class="input-label">Jenis Izin</label>
+                <div style="position: relative">
+                  <select id="jenisIzin" class="custom-select">
+                    <option value="Sakit">Sakit</option>
+                    <option value="Izin">Izin Pribadi/Keluarga</option>
+                    <option value="Dinas">Tugas Organisasi/Dinas</option>
+                  </select>
+                  <i
+                    class="icon material-icons"
+                    style="
+                      position: absolute;
+                      right: 15px;
+                      top: 15px;
+                      color: #b2bec3;
+                      pointer-events: none;
+                    "
+                    >arrow_drop_down</i
+                  >
+                </div>
+              </div>
+
+              <div class="input-wrapper">
+                <label class="input-label">Tanggal</label>
+                <input type="date" id="tanggalIzin" class="custom-input" />
+              </div>
+
+              <div class="input-wrapper">
+                <label class="input-label">Alasan Lengkap</label>
+                <textarea
+                  id="alasanIzin"
+                  class="custom-textarea"
+                  rows="4"
+                  placeholder="Jelaskan alasan ketidakhadiran Anda..."
+                ></textarea>
+              </div>
+
+              <button class="btn-submit ripple" onclick="kirimIzin()">
+                <i class="icon f7-icons">paperplane_fill</i>
+                KIRIM PENGAJUAN
+              </button>
+            </div>
+
+            <div
+              class="block-footer"
+              style="text-align: center; margin-top: 30px"
+            >
+              <a href="rekap-izin.html" class="link external history-link">
+                <i class="icon f7-icons" style="font-size: 18px">clock_fill</i>
+                Lihat Riwayat Izin Saya
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/framework7/framework7-bundle.min.js"></script>
+    <script>
+      var app = new Framework7({ el: "#app", theme: "ios" });
+
+      // Init Tanggal Hari Ini
+      document.addEventListener("DOMContentLoaded", function () {
+        const today = new Date().toISOString().split("T")[0];
+        document.getElementById("tanggalIzin").value = today;
+      });
+
+      function kirimIzin() {
+        const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
+        // Cek Login
+        if (!currentUser) {
+          app.dialog.alert("Sesi habis. Silakan login ulang.", () => {
+            window.location.href = "../../pages/auth/login.html";
+          });
+          return;
+        }
+
+        // Ambil Data Input
+        const jenis = document.getElementById("jenisIzin").value;
+        const tgl = document.getElementById("tanggalIzin").value;
+        const alasan = document.getElementById("alasanIzin").value;
+
+        // Validasi
+        if (!alasan) {
+          app.dialog.alert("Mohon isi alasan izin Anda.");
+          return;
+        }
+        if (!window.firebase) {
+          app.dialog.alert("Koneksi Database bermasalah. Cek internet.");
+          return;
+        }
+
+        app.dialog.preloader("Mengirim Data...");
+
+        const db = firebase.database();
+        const dataIzin = {
+          nama: currentUser.name,
+          nim: currentUser.nim || "-",
+          keterangan: jenis,
+          alasan: alasan,
+          waktu: tgl, // Tanggal Izin
+          iso: new Date().toISOString(), // Timestamp pengajuan
+          status: "Pending", // Untuk fitur approval nanti
+        };
+
+        // Simpan ke node 'izin' di Firebase
+        // Data ini otomatis terbaca di halaman Rekap Admin
+        db.ref("izin")
+          .push(dataIzin)
+          .then(() => {
+            app.dialog.close();
+            app.dialog
+              .create({
+                title: "Berhasil!",
+                text: `<div style="text-align:center; margin-top:10px;">
+                      <i class="icon f7-icons text-color-green" style="font-size:48px">checkmark_circle_fill</i>
+                      <p>Pengajuan izin telah terkirim.</p>
+                     </div>`,
+                buttons: [
+                  {
+                    text: "OK",
+                    onClick: function () {
+                      // Kembali ke dashboard setelah sukses
+                      window.location.href =
+                        "../dashboard/dashboard-anggota.html";
+                    },
+                  },
+                ],
+              })
+              .open();
+          })
+          .catch((err) => {
+            app.dialog.close();
+            app.dialog.alert("Gagal mengirim data: " + err.message);
+          });
+      }
+    </script>
+  </body>
+</html>
