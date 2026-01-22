@@ -337,25 +337,6 @@
                 </button>
               </div>
 
-              <div class="section-title" style="margin-top: 10px">
-                Kegiatan Terdekat
-                <a href="#" onclick="goToKegiatan()" class="link-see-all"
-                  >Lihat Semua</a
-                >
-              </div>
-
-              <div
-                id="upcoming-activities-container"
-                style="margin-bottom: 30px"
-              >
-                <div style="text-align: center; padding: 20px; color: #999">
-                  <span class="preloader color-multi"></span>
-                  <p style="font-size: 0.85rem; margin-top: 10px">
-                    Sinkronisasi Jadwal...
-                  </p>
-                </div>
-              </div>
-
               <div class="section-title">Menu Utama</div>
               <div class="menu-grid">
                 <div class="menu-card ripple" onclick="goToKegiatan()">
@@ -363,13 +344,6 @@
                     <i class="f7-icons">calendar_today</i>
                   </div>
                   <div class="menu-label">Jadwal</div>
-                </div>
-
-                <div class="menu-card ripple" onclick="goToRekap()">
-                  <div class="menu-icon bg-blue">
-                    <i class="f7-icons">clock_fill</i>
-                  </div>
-                  <div class="menu-label">Riwayat</div>
                 </div>
 
                 <div class="menu-card ripple" onclick="goToIzin()">
@@ -391,13 +365,6 @@
                     <i class="f7-icons">bell_circle_fill</i>
                   </div>
                   <div class="menu-label">Info</div>
-                </div>
-
-                <div class="menu-card ripple" onclick="goToProfil()">
-                  <div class="menu-icon bg-gray">
-                    <i class="f7-icons">person_crop_circle_fill</i>
-                  </div>
-                  <div class="menu-label">Profil</div>
                 </div>
               </div>
 
@@ -436,36 +403,22 @@
         window.location.href = "../auth/login.html";
       } else {
         document.getElementById("userName").textContent = currentUser.name;
-        document.getElementById("userOrg").textContent =
-          currentUser.organization;
-
+        document.getElementById("userOrg").textContent = currentUser.organization;
         loadUpcomingActivities();
       }
 
-      // --- NAVIGASI (DIPERBAIKI) ---
+      // --- NAVIGASI ---
       function goToPresensi() {
         const org = currentUser.organization;
         if (org) window.location.href = `../presensi/Presensi-${org}.html`;
         else app.dialog.alert("Data organisasi tidak valid");
       }
 
-      function goToKegiatan() {
-        // PERBAIKAN: Mundur satu folder (../) untuk mengakses jadwal-kegiatan.html
-        window.location.href = "../jadwal-kegiatan.html";
-      }
-
-      function goToIzin() {
-        window.location.href = "../rekap/izin.html";
-      }
-      function goToRekap() {
-        window.location.href = "../rekap/rekap-kehadiran.html";
-      }
-      function goToNotifikasi() {
-        window.location.href = "../notifications.html";
-      }
-      function goToProfil() {
-        window.location.href = `../presensi/Presensi-${currentUser.organization}.html#tab-profil`;
-      }
+      function goToKegiatan() { window.location.href = "../jadwal-kegiatan.html"; }
+      function goToIzin() { window.location.href = "../rekap/izin.html"; }
+      function goToRekap() { window.location.href = "../rekap/rekap-kehadiran.html"; }
+      function goToNotifikasi() { window.location.href = "../notifications.html"; }
+      function goToProfil() { window.location.href = `../presensi/Presensi-${currentUser.organization}.html#tab-profil`; }
 
       function logout() {
         app.dialog.confirm("Yakin ingin keluar?", "Log Out", function () {
@@ -474,53 +427,50 @@
         });
       }
 
+      // === [BAGIAN PENTING] FUNGSI OPER DATA ===
+      // Fungsi ini akan menyimpan data kegiatan yang diklik ke memori HP
+      function pilihKegiatan(nama, waktu, lokasi, tanggal) {
+        var dataKegiatan = {
+          nama: nama,
+          waktu: waktu,
+          lokasi: lokasi,
+          tanggal: tanggal
+        };
+        // Simpan data biar bisa diambil di halaman sebelah
+        localStorage.setItem("kegiatan_aktif", JSON.stringify(dataKegiatan));
+        
+        // Pindah ke halaman presensi
+        goToPresensi();
+      }
+
       // --- LOAD DATA JADWAL (REALTIME) ---
       function loadUpcomingActivities() {
         if (!window.firebase) return;
         const db = firebase.database();
-        const container = document.getElementById(
-          "upcoming-activities-container"
-        );
+        const container = document.getElementById("upcoming-activities-container");
 
-        db.ref("kegiatan")
-          .limitToLast(3)
-          .on("value", (snapshot) => {
-            container.innerHTML = ""; // Clear loader
+        db.ref("kegiatan").limitToLast(3).on("value", (snapshot) => {
+            container.innerHTML = ""; 
 
             if (!snapshot.exists()) {
-              container.innerHTML = `
-              <div style="text-align: center; padding: 30px 20px; background: white; border-radius: 18px; border: 1px dashed #ddd;">
-                <i class="f7-icons" style="font-size: 32px; color: #ddd; margin-bottom: 10px;">calendar_today</i>
-                <p style="color: #999; margin: 0; font-size: 0.9rem;">Tidak ada kegiatan dalam waktu dekat.</p>
-              </div>`;
+              container.innerHTML = `<div style="text-align:center; padding:20px; color:#999;">Belum ada kegiatan.</div>`;
               return;
             }
 
             const activities = [];
             snapshot.forEach((child) => activities.push(child.val()));
 
-            // Urutkan & Tampilkan (Terbaru diatas)
+            // Urutkan & Tampilkan
             activities.reverse().forEach((kegiatan) => {
               const dateParts = kegiatan.tanggal.split("-");
-              const monthNames = [
-                "JAN",
-                "FEB",
-                "MAR",
-                "APR",
-                "MEI",
-                "JUN",
-                "JUL",
-                "AGU",
-                "SEP",
-                "OKT",
-                "NOV",
-                "DES",
-              ];
-              const monthIndex = parseInt(dateParts[1]) - 1;
-              const shortMonth = monthNames[monthIndex] || dateParts[1];
+              const monthNames = ["JAN","FEB","MAR","APR","MEI","JUN","JUL","AGU","SEP","OKT","NOV","DES"];
+              const mIndex = parseInt(dateParts[1]) - 1;
+              const shortMonth = monthNames[mIndex] || dateParts[1];
 
+              // [PERHATIKAN INI] 
+              // Di sini kita pasang onclick="pilihKegiatan(...)" agar datanya terkirim
               const html = `
-              <div class="activity-item ripple" onclick="goToPresensi()">
+              <div class="activity-item ripple" onclick="pilihKegiatan('${kegiatan.nama}', '${kegiatan.waktu}', '${kegiatan.lokasi}', '${kegiatan.tanggal}')">
                 <div class="ai-date">
                   <span>${dateParts[2]}</span>
                   <small>${shortMonth}</small>
