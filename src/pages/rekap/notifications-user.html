@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <title>Pengumuman</title>
+  <style>
+    /* STYLE UNTUK USER (Sama tapi tanpa form) */
+    :root { var(--primary: #2b2890; --bg: #f4f5ff; }
+    body { background: var(--bg); font-family: sans-serif; margin: 0; padding-top: 60px; }
+    
+    .navbar-user { position: fixed; top: 0; left: 0; right: 0; height: 56px; background: white; color: var(--primary); display: flex; align-items: center; padding: 0 16px; border-bottom: 1px solid #eee; z-index: 100; }
+    .back-btn { margin-right: 15px; cursor: pointer; }
+    
+    .container { max-width: 600px; margin: 0 auto; padding: 16px; }
+
+    .notif-card { background: white; border-radius: 12px; padding: 15px; margin-bottom: 12px; border-left: 5px solid var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    .title { font-weight: bold; font-size: 16px; margin-bottom: 5px; color: #333; }
+    .meta { font-size: 11px; color: #999; margin-bottom: 8px; }
+    .body { font-size: 14px; color: #444; line-height: 1.5; }
+    .empty { text-align: center; color: #999; margin-top: 50px; }
+  </style>
+</head>
+<body>
+
+    <div class="back-btn" onclick="window.location.href='/src/pages/dashboard/dashboard-anggota.html'">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2b2890" stroke-width="2">
+        <polyline points="15 18 9 12 15 6"></polyline>
+    </svg>
+    </div>
+
+  <div class="container">
+    <div id="feed">
+      <div class="empty">Sedang memuat pengumuman...</div>
+    </div>
+  </div>
+
+  <script>
+    // USER HANYA BISA BACA (READ ONLY)
+    document.addEventListener('DOMContentLoaded', () => {
+      var feed = document.getElementById('feed');
+      
+      firebase.database().ref('notifications').limitToLast(20).on('value', snap => {
+        feed.innerHTML = "";
+        
+        if(!snap.val()) {
+          feed.innerHTML = '<div class="empty">Belum ada pengumuman.</div>';
+          return;
+        }
+        
+        var list = Object.values(snap.val()).reverse();
+        list.forEach(item => {
+          var date = new Date(item.waktu).toLocaleString();
+          // Merah jika penting
+          var style = item.prioritas === 'Penting' ? 'border-left-color:#dc2626; background:#fff5f5;' : '';
+          
+          var html = `
+            <div class="notif-card" style="${style}">
+              <div class="title">${item.judul}</div>
+              <div class="meta">📅 ${date} • 📢 ${item.ormawa}</div>
+              <div class="body">${item.pesan}</div>
+            </div>`;
+          feed.innerHTML += html;
+        });
+      });
+    });
+  </script>
+</body>
+</html>

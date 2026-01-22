@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <title>Admin - Kelola Pengumuman</title>
+  <style>
+    /* STYLE UNTUK ADMIN */
+    :root { var(--primary: #2b2890; --bg: #f4f5ff; --text: #1f2937; }
+    body { background: var(--bg); font-family: sans-serif; margin: 0; padding-top: 60px; padding-bottom: 40px; }
+    
+    /* Navbar Admin */
+    .navbar-admin { position: fixed; top: 0; left: 0; right: 0; height: 56px; background: var(--primary); display: flex; align-items: center; padding: 0 16px; color: white; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .back-btn { margin-right: 15px; cursor: pointer; }
+    
+    .container { max-width: 600px; margin: 0 auto; padding: 16px; }
+
+    /* FORMULIR (Selalu Muncul) */
+    .admin-form { background: white; padding: 20px; border-radius: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
+    .form-input { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
+    .btn-submit { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+
+    /* CARD FEED */
+    .notif-card { background: white; border-radius: 12px; padding: 15px; margin-bottom: 10px; border-left: 5px solid var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    .title { font-weight: bold; font-size: 16px; margin-bottom: 5px; }
+    .meta { font-size: 11px; color: #888; margin-bottom: 8px; }
+    .body { font-size: 14px; color: #333; }
+  </style>
+</head>
+<body>
+
+    <div class="back-btn" onclick="window.location.href='/src/pages/dashboard/dashboard-admin.html'">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="15 18 9 12 15 6"></polyline>
+    </svg>
+    </div>
+
+  <div class="container">
+    <div class="admin-form">
+      <h3 style="margin-top:0; color:#2b2890;">📢 Posting Info Baru</h3>
+      <input type="text" id="judul" class="form-input" placeholder="Judul Pengumuman">
+      <textarea id="pesan" class="form-input" rows="3" placeholder="Isi pesan..."></textarea>
+      
+      <select id="prioritas" class="form-input">
+        <option value="Info">Info Biasa</option>
+        <option value="Penting">⚠️ Penting</option>
+      </select>
+      
+      <select id="ormawa" class="form-input">
+        <option value="Semua">Semua User</option>
+        <option value="BEM">BEM</option>
+        <option value="HMIF">HMIF</option>
+      </select>
+
+      <button class="btn-submit" onclick="kirim()">KIRIM SEKARANG</button>
+    </div>
+
+    <div style="font-weight:bold; margin-bottom:10px; color:#666;">Riwayat Postingan</div>
+    <div id="feed">Memuat...</div>
+  </div>
+
+  <script>
+    // 1. Fungsi Kirim Data ke Firebase
+    function kirim() {
+      var judul = document.getElementById('judul').value;
+      var pesan = document.getElementById('pesan').value;
+      
+      if(!judul || !pesan) { alert("Isi judul dan pesan!"); return; }
+
+      var data = {
+        judul: judul,
+        pesan: pesan,
+        prioritas: document.getElementById('prioritas').value,
+        ormawa: document.getElementById('ormawa').value,
+        waktu: firebase.database.ServerValue.TIMESTAMP
+      };
+
+      firebase.database().ref('notifications').push(data).then(() => {
+        alert("Terkirim!");
+        document.getElementById('judul').value = "";
+        document.getElementById('pesan').value = "";
+      });
+    }
+
+    // 2. Fungsi Baca Data (Sama)
+    document.addEventListener('DOMContentLoaded', () => {
+      firebase.database().ref('notifications').limitToLast(10).on('value', snap => {
+        document.getElementById('feed').innerHTML = "";
+        if(!snap.val()) return;
+        
+        var list = Object.values(snap.val()).reverse();
+        list.forEach(item => {
+          var date = new Date(item.waktu).toLocaleString();
+          var style = item.prioritas === 'Penting' ? 'border-left-color:red' : '';
+          var html = `
+            <div class="notif-card" style="${style}">
+              <div class="title">${item.judul} <span style="font-size:10px; background:#eee; padding:2px 6px; border-radius:10px;">${item.ormawa}</span></div>
+              <div class="meta">${date} • ${item.prioritas}</div>
+              <div class="body">${item.pesan}</div>
+            </div>`;
+          document.getElementById('feed').innerHTML += html;
+        });
+      });
+    });
+  </script>
+</body>
+</html>
